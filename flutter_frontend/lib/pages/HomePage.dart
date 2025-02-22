@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
+import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,11 +20,54 @@ class _HomePageState extends State<HomePage> {
 
   late GoogleMapController _mapController;
   Location _Location = new Location();
+  List<BusStop> _busStops = [];
 
   @override
+  @override
+  void initState() {
+    super.initState();
+    _fetchBusStops(); // Fetch stops when the screen loads
+  }
+
+  // Fetch bus stops from Laravel API
+
+  Future<void> _fetchBusStops() async {
+    try {
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:8000/api/bus-stop"),
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _busStops = data.map((stop) => BusStop.fromJson(stop)).toList();
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  // Convert bus stops to Google Map markers
+  Set<Marker> _getBusStopMarkers() {
+    return _busStops.map((stop) {
+      return Marker(
+        markerId: MarkerId(stop.id.toString()),
+        position: LatLng(stop.latitude, stop.longitude),
+        infoWindow: InfoWindow(title: stop.name),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      );
+    }).toSet();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Beirut Map')),
+      appBar: AppBar(
+        title: const Text(' Tareeq', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
+      ),
       body: GoogleMap(
         initialCameraPosition: const CameraPosition(
           target: _beirutLocation,
@@ -34,28 +81,13 @@ class _HomePageState extends State<HomePage> {
         zoomControlsEnabled: true,
         mapType: MapType.normal,
         //restrict the camera to a specific area
-        cameraTargetBounds: CameraTargetBounds(
-          LatLngBounds(
-            southwest: LatLng(33.888630, 35.495480),
-            northeast: LatLng(33.8938, 35.5018),
-          ),
-        ),
-        //IN THIS SET OF MARKERS THE BUS STOPS ARE MARKED we should get the bus stops from the database
-        // ignore: prefer_collection_literals
-        markers: Set<Marker>.of([
-          Marker(
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueGreen,
-            ),
-            markerId: const MarkerId('beirut'),
-            position: LatLng(33.888630, 35.495480),
-            infoWindow: const InfoWindow(title: 'Beirut'),
-          ),
-          Marker(
-            markerId: const MarkerId('beirut2'),
-            position: LatLng(33.8938, 35.5018),
-          ),
-        ]),
+        // cameraTargetBounds: CameraTargetBounds(
+        //   LatLngBounds(
+        //     southwest: LatLng(33.888630, 35.495480),
+        //     northeast: LatLng(33.8938, 35.5018),
+        //   ),
+        // ),
+        markers: _getBusStopMarkers(),
       ),
       bottomNavigationBar: NavBar(),
       floatingActionButton: FloatingActionButton(
