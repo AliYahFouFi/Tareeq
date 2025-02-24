@@ -24,19 +24,29 @@ class _HomePageState extends State<HomePage> {
   Location _Location = new Location();
   List<BusStop> _busStops = [];
   Map<PolylineId, Polyline> polylines = {};
-  List<PolylineWayPoint> polylineWaypoints = [];
+
   LatLng? currentPosition = null;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => initializeMap());
-    // _fetchBusRoutes();
+
     _fetchBusStops(); // Fetch stops when the screen loads
   }
 
   Future<void> initializeMap() async {
     _getUserLiveLocation();
-    final coordinates = await _fetchPolylinePoints();
+
+    final polylineWaypoints = await _getBusRoutePolyline('1');
+    List<PointLatLng> originDestination = removeFirstAndLastWaypoints(
+      polylineWaypoints,
+    );
+
+    final coordinates = await _fetchPolylinePoints(
+      polylineWaypoints,
+      originDestination[0],
+      originDestination[1],
+    );
     _generatePolyLineFromPoints(coordinates);
   }
 
@@ -58,26 +68,6 @@ class _HomePageState extends State<HomePage> {
       ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
-
-  // Fetch bus routes from Laravel API
-  // Future<void> _fetchBusRoutes() async {
-  //   try {
-  //     final Routeresponse = await http.get(
-  //       Uri.parse('http://10.0.2.2:8000/api/routes/1/stops'),
-  //     );
-  //     if (Routeresponse.statusCode == 200) {
-  //       final Map<String, dynamic> data = json.decode(Routeresponse.body);
-  //       final BusRoute route = BusRoute.fromJson(data);
-  //       setState(() {
-  //         _busRoutes = [route];
-  //       });
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('Error: $e')));
-  //   }
-  // }
 
   // Convert bus stops to Google Map markers
   Set<Marker> _getBusStopMarkers() {
@@ -115,7 +105,6 @@ class _HomePageState extends State<HomePage> {
                 zoomControlsEnabled: true,
                 mapType: MapType.normal,
                 polylines: Set<Polyline>.of(polylines.values),
-
                 markers: Set<Marker>.from(_getBusStopMarkers())..add(
                   Marker(
                     markerId: MarkerId('currentLocation'),
@@ -211,47 +200,54 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //get the stops from the db and convert them to polyline points <polyLineWayPoint>
+  //get the stops from the db as a list and convert them to polyline points <polyLineWayPoint>that will be used in_fetchBusRoutePolyline
 
-  // Future<List<PolylineWayPoint>> _getBusRoutePolyline(String routeId) async {
-  //   try {
-  //     final response = await http.get(
-  //       Uri.parse("http://10.0.2.2:8000/api/routes/$routeId/stops"),
-  //     );
+  Future<List<PolylineWayPoint>> _getBusRoutePolyline(String routeId) async {
+    List<PolylineWayPoint> polylineWaypoints = [];
+    try {
+      final response = await http.get(
+        Uri.parse("http://10.0.2.2:8000/api/routes/$routeId/stops"),
+      );
 
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
 
-  //       if (data.containsKey('stops')) {
-  //         List<dynamic> stops = data['stops'];
+        if (data.containsKey('stops')) {
+          List<dynamic> stops = data['stops'];
 
-  //         polylineWaypoints =
-  //             stops.map<PolylineWayPoint>((stop) {
-  //               return PolylineWayPoint(
-  //                 location: "${stop['latitude']},${stop['longitude']}",
-  //                 stopOver: true,
-  //               );
-  //             }).toList();
-  //       }
-  //       return polylineWaypoints;
-  //     } else {
-  //       throw Exception(
-  //         'Failed to fetch bus route data: ${response.statusCode}',
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching route data: $e');
-  //     return polylineWaypoints; // Return empty list on error
-  //   }
-  // }
+          polylineWaypoints =
+              stops.map<PolylineWayPoint>((stop) {
+                return PolylineWayPoint(
+                  location: "${stop['latitude']},${stop['longitude']}",
+                  stopOver: true,
+                );
+              }).toList();
+        }
+        return polylineWaypoints;
+      } else {
+        throw Exception(
+          'Failed to fetch bus route data: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('Error fetching route data: $e');
+      return polylineWaypoints; // Return empty list on error
+    }
+  }
 
-  Future<List<LatLng>> _fetchPolylinePoints() async {
+  Future<List<LatLng>> _fetchPolylinePoints(
+    List<PolylineWayPoint> polylineWaypoints,
+    PointLatLng origin,
+    PointLatLng destination,
+  ) async {
     final PolylinePoints polylinePoints = PolylinePoints();
     PolylineRequest polylineRequest = PolylineRequest(
-      origin: PointLatLng(33.90140000, 35.51960000),
-      destination: PointLatLng(33.90100000, 35.54220000),
+      origin: origin,
+      destination: destination,
       mode: TravelMode.driving,
+      wayPoints: polylineWaypoints,
     );
+
     final result = await polylinePoints.getRouteBetweenCoordinates(
       googleApiKey: Api_Key,
       request: polylineRequest,
@@ -263,6 +259,44 @@ class _HomePageState extends State<HomePage> {
     } else {
       return [];
     }
+  }
+
+  List<PointLatLng> removeFirstAndLastWaypoints(
+    List<PolylineWayPoint> polylineWaypoints,
+  ) {
+    List<PointLatLng> originDestination = [];
+
+    if (polylineWaypoints.length >= 2) {
+      // Extract first and last waypoints
+      PolylineWayPoint originWaypoint = polylineWaypoints.first;
+      PolylineWayPoint destinationWaypoint = polylineWaypoints.last;
+
+      // Convert first waypoint to PointLatLng (origin)
+      List<String> originParts = originWaypoint.location.split(',');
+      double originLat = double.tryParse(originParts[0]) ?? 0.0;
+      double originLng = double.tryParse(originParts[1]) ?? 0.0;
+      PointLatLng origin = PointLatLng(originLat, originLng);
+
+      // Convert last waypoint to PointLatLng (destination)
+      List<String> destParts = destinationWaypoint.location.split(',');
+      double destLat = double.tryParse(destParts[0]) ?? 0.0;
+      double destLng = double.tryParse(destParts[1]) ?? 0.0;
+      PointLatLng destination = PointLatLng(destLat, destLng);
+
+      // Remove first and last from the original list
+      polylineWaypoints.removeAt(0);
+      polylineWaypoints.removeLast();
+
+      originDestination.add(origin);
+      originDestination.add(destination);
+
+      print('Origin: $origin, Destination: $destination');
+      print('Updated Waypoints: $polylineWaypoints');
+    } else {
+      print('Need at least 2 waypoints');
+    }
+
+    return originDestination;
   }
 
   Future<void> _generatePolyLineFromPoints(
