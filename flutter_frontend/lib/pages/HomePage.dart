@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
+import 'package:flutter_frontend/const.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
+import 'package:flutter_frontend/models/BusRoute_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
@@ -21,12 +23,21 @@ class _HomePageState extends State<HomePage> {
   late GoogleMapController _mapController;
   Location _Location = new Location();
   List<BusStop> _busStops = [];
+  Map<PolylineId, Polyline> polylines = {};
+  List<PolylineWayPoint> polylineWaypoints = [];
   LatLng? currentPosition = null;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => initializeMap());
+    // _fetchBusRoutes();
     _fetchBusStops(); // Fetch stops when the screen loads
+  }
+
+  Future<void> initializeMap() async {
     _getUserLiveLocation();
+    final coordinates = await _fetchPolylinePoints();
+    _generatePolyLineFromPoints(coordinates);
   }
 
   // Fetch bus stops from Laravel API
@@ -48,6 +59,26 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Fetch bus routes from Laravel API
+  // Future<void> _fetchBusRoutes() async {
+  //   try {
+  //     final Routeresponse = await http.get(
+  //       Uri.parse('http://10.0.2.2:8000/api/routes/1/stops'),
+  //     );
+  //     if (Routeresponse.statusCode == 200) {
+  //       final Map<String, dynamic> data = json.decode(Routeresponse.body);
+  //       final BusRoute route = BusRoute.fromJson(data);
+  //       setState(() {
+  //         _busRoutes = [route];
+  //       });
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text('Error: $e')));
+  //   }
+  // }
+
   // Convert bus stops to Google Map markers
   Set<Marker> _getBusStopMarkers() {
     return _busStops.map((stop) {
@@ -56,7 +87,7 @@ class _HomePageState extends State<HomePage> {
         position: LatLng(stop.latitude, stop.longitude),
         infoWindow: InfoWindow(title: stop.name),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        onTap: () => print('Marker Tapped'),
+        onTap: () => (),
       );
     }).toSet();
   }
@@ -83,6 +114,8 @@ class _HomePageState extends State<HomePage> {
                 myLocationButtonEnabled: false,
                 zoomControlsEnabled: true,
                 mapType: MapType.normal,
+                polylines: Set<Polyline>.of(polylines.values),
+
                 markers: Set<Marker>.from(_getBusStopMarkers())..add(
                   Marker(
                     markerId: MarkerId('currentLocation'),
@@ -106,7 +139,6 @@ class _HomePageState extends State<HomePage> {
   /// permission to access their location if not already granted.
   /// Once the service is enabled and permission is granted, it fetches
   /// the user's current location data.
-
   /// If the service is not enabled or permission is not granted, the
   /// function returns early without fetching the location data.
 
@@ -177,5 +209,73 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  //get the stops from the db and convert them to polyline points <polyLineWayPoint>
+
+  // Future<List<PolylineWayPoint>> _getBusRoutePolyline(String routeId) async {
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse("http://10.0.2.2:8000/api/routes/$routeId/stops"),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> data = json.decode(response.body);
+
+  //       if (data.containsKey('stops')) {
+  //         List<dynamic> stops = data['stops'];
+
+  //         polylineWaypoints =
+  //             stops.map<PolylineWayPoint>((stop) {
+  //               return PolylineWayPoint(
+  //                 location: "${stop['latitude']},${stop['longitude']}",
+  //                 stopOver: true,
+  //               );
+  //             }).toList();
+  //       }
+  //       return polylineWaypoints;
+  //     } else {
+  //       throw Exception(
+  //         'Failed to fetch bus route data: ${response.statusCode}',
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching route data: $e');
+  //     return polylineWaypoints; // Return empty list on error
+  //   }
+  // }
+
+  Future<List<LatLng>> _fetchPolylinePoints() async {
+    final PolylinePoints polylinePoints = PolylinePoints();
+    PolylineRequest polylineRequest = PolylineRequest(
+      origin: PointLatLng(33.90140000, 35.51960000),
+      destination: PointLatLng(33.90100000, 35.54220000),
+      mode: TravelMode.driving,
+    );
+    final result = await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: Api_Key,
+      request: polylineRequest,
+    );
+    if (result.points.isNotEmpty) {
+      return result.points
+          .map((point) => LatLng(point.latitude, point.longitude))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<void> _generatePolyLineFromPoints(
+    List<LatLng> pointCoordinates,
+  ) async {
+    const PolylineId id = PolylineId('polyline');
+
+    final Polyline polyline = Polyline(
+      polylineId: id,
+      points: pointCoordinates,
+      width: 5,
+      color: Colors.red,
+    );
+    setState(() => polylines[id] = polyline);
   }
 }
