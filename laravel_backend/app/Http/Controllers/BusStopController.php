@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Bus_Stop;
+use App\Models\BusStop;
 
 class BusStopController extends Controller
 {
 
 
     //get all bus stops
-    public function index()
+    public function getAllStops()
     {
-        $bus_stops = Bus_Stop::all();
+        $bus_stops = BusStop::all();
         return response()->json($bus_stops);
     }
 }
