@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Bus_Route;
 
-class Bus_Stop extends Model
+class BusStop extends Model
 {
     protected $table = 'bus_stops';
 
@@ -13,6 +14,11 @@ class Bus_Stop extends Model
         'address',
         'latitude',
         'longitude',
-        'bus_route_id',
     ];
+
+    public function routes()
+    {
+        return $this->belongsToMany(BusRoute::class, 'bus_route_stop')
+            ->withPivot('order');
+    }
 }

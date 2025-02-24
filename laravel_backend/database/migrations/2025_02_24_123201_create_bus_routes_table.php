@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bus_stops', function (Blueprint $table) {
+        Schema::create('bus_routes', function (Blueprint $table) {
             $table->id();
+            $table->string('name'); // e.g., "Beirut Central Line"
+            $table->text('schedule')->nullable(); // JSON or text for timetable
             $table->timestamps();
-            $table->string('name');
-            $table->string('address')->nullable();
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 11, 8);
         });
     }
 
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bus_stops');
+        Schema::dropIfExists('bus_routes');
     }
 };
