@@ -30,9 +30,6 @@ class BusRouteController extends Controller
         // Format the response
         $formattedStops = $route->stops->map(function ($stop) {
             return [
-                'id' => $stop->id,
-                'name' => $stop->name,
-                'address' => $stop->address,
                 'latitude' => $stop->latitude,
                 'longitude' => $stop->longitude,
             ];
