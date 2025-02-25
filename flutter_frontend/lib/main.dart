@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'pages/HomePage.dart';
-import 'components/NavBar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,6 +10,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'My App', home: HomePage());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'My App',
+      home: HomePage(),
+    );
   }
 }
