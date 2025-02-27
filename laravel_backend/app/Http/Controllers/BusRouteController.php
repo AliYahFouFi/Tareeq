@@ -7,15 +7,9 @@ use App\Models\BusRoute;
 
 class BusRouteController extends Controller
 {
-    function getAllRoutes()
-    {
-        $routes = BusRoute::all();
-        return response()->json($routes);
-    }
 
-    //get the routes by order
 
-    // app/Http/Controllers/RouteController.php
+    // Function to retrieves the stops for a specific bus route
     public function getStops($routeId)
     {
         // Fetch the route with its ordered stops
@@ -40,5 +34,40 @@ class BusRouteController extends Controller
             'route_name' => $route->name,
             'stops' => $formattedStops,
         ]);
+    }
+    public function getAllRoutes()
+    {
+        try {
+            // Fetch routes with ordered stops
+            $routes = BusRoute::with(['stops' => function ($query) {
+                $query->orderByPivot('order')->select('bus_stops.*');
+            }])->get();
+
+            // Format response
+            $formattedRoutes = $routes->map(function ($route) {
+                $formattedStops = $route->stops->map(function ($stop) {
+                    return [
+                        'id' => $stop->id,
+                        'name' => $stop->name,
+                        'latitude' => $stop->latitude,
+                        'longitude' => $stop->longitude,
+                        'order' => $stop->pivot->order, // Include order if needed
+                    ];
+                });
+
+                return [
+                    'route_id' => $route->id,
+                    'route_name' => $route->name,
+                    'stops' => $formattedStops,
+                ];
+            });
+
+            return response()->json($formattedRoutes);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch routes',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 }

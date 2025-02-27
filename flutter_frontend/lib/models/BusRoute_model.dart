@@ -1,38 +1,45 @@
-import 'package:flutter_frontend/models/BusStop_model.dart';
-
 class BusRoute {
-  final int routeId;
-  final String routeName;
-  final List<stop> stops;
+  int route_id;
+  String route_name;
+  List<Stop> stops;
 
   BusRoute({
-    required this.routeId,
-    required this.routeName,
+    required this.route_id,
+    required this.route_name,
     required this.stops,
   });
 
   factory BusRoute.fromJson(Map<String, dynamic> json) {
     return BusRoute(
-      routeId: json['route_id'] as int,
-      routeName: json['route_name'] as String,
-      stops:
-          (json['stops'] as List)
-              .map((stopJson) => stop.fromJson(stopJson))
-              .toList(),
+      route_id: json['route_id'],
+      route_name: json['route_name'],
+      stops: json['stops'].map<Stop>((stop) => Stop.fromJson(stop)).toList(),
     );
   }
 }
 
-class stop {
-  final double latitude;
-  final double longitude;
+class Stop {
+  int id;
+  String name;
+  String latitude;
+  String longitude;
+  int order;
 
-  stop({required this.latitude, required this.longitude});
+  Stop({
+    required this.id,
+    required this.name,
+    required this.latitude,
+    required this.longitude,
+    required this.order,
+  });
 
-  factory stop.fromJson(Map<String, dynamic> json) {
-    return stop(
-      latitude: json['latitude'] as double,
-      longitude: json['longitude'] as double,
+  factory Stop.fromJson(Map<String, dynamic> json) {
+    return Stop(
+      id: json['id'],
+      name: json['name'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      order: json['order'],
     );
   }
 }
