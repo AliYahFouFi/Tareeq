@@ -2,9 +2,28 @@
 
 import 'dart:convert';
 import 'package:flutter_frontend/const.dart';
+import 'package:flutter_frontend/models/BusRoute_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
+/// Fetches polyline points for a route between two locations using the provided waypoints.
+///
+/// This function uses the Google Maps API to fetch a list of [LatLng] points representing
+/// the polyline for a route from [origin] to [destination] with optional [polylineWaypoints].
+///
+/// The function constructs a [PolylineRequest] and makes an API call to retrieve the route
+/// coordinates. If successful, it returns a list of [LatLng] points representing the polyline.
+/// If the API call fails or returns no points, the function returns an empty list.
+///
+/// Parameters:
+/// - [polylineWaypoints]: A list of waypoints to include in the route.
+/// - [origin]: The starting point of the route.
+/// - [destination]: The ending point of the route.
+///
+/// Returns:
+/// A [Future] that resolves to a list of [LatLng] points representing the polyline
+/// for the route.
 
 Future<List<LatLng>> fetchPolylinePoints(
   List<PolylineWayPoint> polylineWaypoints,
@@ -103,17 +122,50 @@ List<PointLatLng> removeFirstAndLastWaypoints(
 
   return originDestination;
 }
-  // Future<void> _generatePolyLineFromPoints(
-  //   List<LatLng> pointCoordinates,
-  // ) async {
-  //   const PolylineId id = PolylineId('polyline');
 
-  //   final Polyline polyline = Polyline(
-  //     polylineId: id,
-  //     points: pointCoordinates,
-  //     width: 5,
-  //     color: Colors.red,
-  //   );
-  //   setState(() => polylines[id] = polyline);
-  // }
+/// Fetches all bus routes from the API and returns a list of [BusRoute] objects.
+///
+/// This function makes a GET request to the API and returns the list of bus
+/// routes in the response body. If the response status code is not 200 (OK),
+/// it throws an exception.
 
+Future<List<BusRoute>> fetchAllBusRoutes() async {
+  final url = Uri.parse('http://10.0.2.2:8000/api/bus-route');
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    try {
+      final List<dynamic> jsonData = jsonDecode(response.body);
+      print('fetchAllBusRoutes is working');
+      return jsonData.map((route) => BusRoute.fromJson(route)).toList();
+    } catch (e) {
+      throw Exception('Error parsing JSON: $e');
+    }
+  } else {
+    throw Exception('Failed to load bus routes from API');
+  }
+}
+
+Map<BusRoute, List<PolylineWayPoint>> routeWaypoints = {};
+Future<Map<BusRoute, List<PolylineWayPoint>>>
+busRouteToPolylineWaypoints() async {
+  List<BusRoute> routes = await fetchAllBusRoutes();
+
+  for (var route in routes) {
+    List<PolylineWayPoint> waypoints = [];
+    for (var stop in route.stops) {
+      String latitude = stop.latitude;
+      String longitude = stop.longitude;
+      waypoints.add(
+        PolylineWayPoint(location: "$latitude,$longitude", stopOver: true),
+      );
+    }
+    routeWaypoints[route] = waypoints;
+  }
+  return routeWaypoints;
+  // BusRoute('Route 1'): [
+  //PolylineWayPoint(location: '37.7749,-122.4194', stopOver: true),
+  //PolylineWayPoint(location: '37.7859,-122.4364', stopOver: true),
+  //PolylineWayPoint(location: '37.7963,-122.4574', stopOver: true)
+  //],
+}

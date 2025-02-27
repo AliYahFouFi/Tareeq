@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:flutter_frontend/util/location_service.dart';
+import 'package:uuid/uuid.dart';
+import 'dart:math';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,10 +32,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => initializeMap());
+    // WidgetsBinding.instance.addPostFrameCallback((_) => initializePolylines());
   }
 
   Future<void> initializeMap() async {
-    _fetchBusStops(); // Fetch stops when the screen loads
+    // Fetch stops when the screen loads
+    _fetchBusStops();
     getUserLiveLocation();
     //for getting the live location of the user [NEEDS TO BE CHANGED [IDK A BETTER WAY FOR THIS RIGHT NOW]]
     LocationController.onLocationChanged.listen((LocationData currentLocation) {
@@ -46,21 +50,25 @@ class _HomePageState extends State<HomePage> {
           );
         });
       }
-      print('THIS  IS WORKING');
     });
+  }
 
-    final polylineWaypoints = await getBusRoutePolyline('1');
-    List<PointLatLng> originDestination = removeFirstAndLastWaypoints(
-      polylineWaypoints,
-    );
-
-    final coordinates = await fetchPolylinePoints(
-      polylineWaypoints,
-      originDestination[0],
-      originDestination[1],
-    );
-
-    _generatePolyLineFromPoints(coordinates);
+  //TO initialize polylines and display all the routes fetched form the db
+  Future<void> initializePolylines() async {
+    final routeWaypoints = await busRouteToPolylineWaypoints();
+    for (var entry in routeWaypoints.entries) {
+      BusRoute route = entry.key;
+      List<PolylineWayPoint> waypoints = entry.value;
+      List<PointLatLng> originDestination = removeFirstAndLastWaypoints(
+        waypoints,
+      );
+      final coordinates = await fetchPolylinePoints(
+        waypoints,
+        originDestination[0],
+        originDestination[1],
+      );
+      _generatePolyLineFromPoints(coordinates);
+    }
   }
 
   // Fetch bus stops from Laravel API
@@ -90,7 +98,16 @@ class _HomePageState extends State<HomePage> {
         position: LatLng(stop.latitude, stop.longitude),
         infoWindow: InfoWindow(title: stop.name),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        onTap: () => (),
+        onTap:
+            () => (
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(stop.name),
+
+                  backgroundColor: Colors.deepPurple,
+                ),
+              ),
+            ),
       );
     }).toSet();
   }
@@ -130,24 +147,36 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.location_searching),
         onPressed: () {
-          getUserLocation();
+          initializePolylines();
         },
       ),
     );
   }
 
-  //this is needed to be put in utils polyline
   Future<void> _generatePolyLineFromPoints(
     List<LatLng> pointCoordinates,
   ) async {
-    const PolylineId id = PolylineId('polyline');
+    final PolylineId id = PolylineId(Uuid().v4()); // Generate a unique ID
+
+    final Random random = Random();
+    final List<Color> colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+      Colors.deepOrange,
+      // Add more colors as needed
+    ];
+    final Color randomColor = colors[random.nextInt(colors.length)];
 
     final Polyline polyline = Polyline(
       polylineId: id,
       points: pointCoordinates,
       width: 5,
-      color: Colors.red,
+      color: randomColor,
     );
     setState(() => polylines[id] = polyline);
+    print('Polyline generated successfully');
   }
 }
