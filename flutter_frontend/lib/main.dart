@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/components/BottomSheet.dart';
 import 'pages/HomePage.dart';
 
 void main() {

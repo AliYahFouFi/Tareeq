@@ -99,14 +99,27 @@ class _HomePageState extends State<HomePage> {
         infoWindow: InfoWindow(title: stop.name),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         onTap:
-            () => (
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(stop.name),
-
-                  backgroundColor: Colors.deepPurple,
-                ),
-              ),
+            () => showBottomSheet(
+              context: context,
+              builder: (BuildContext context) {
+                return Container(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        stop.name,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(stop.address, style: TextStyle(fontSize: 16.0)),
+                    ],
+                  ),
+                );
+              },
             ),
       );
     }).toSet();
