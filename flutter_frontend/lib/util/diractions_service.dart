@@ -104,7 +104,6 @@ void drawRoute({
     ),
   };
 
-  updatePolylines(
-    newPolylines,
-  ); // Call function to update state in the main file
+  updatePolylines(newPolylines);
+  // Call function to update state in the main file
 }
