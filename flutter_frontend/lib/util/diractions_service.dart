@@ -1,5 +1,9 @@
+import 'dart:ui';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'polyline_util.dart';
 import '../const.dart';
 
 Future<Map<String, dynamic>> getDirections(
@@ -7,9 +11,10 @@ Future<Map<String, dynamic>> getDirections(
   double StartLon,
   double EndLat,
   double EndLon,
+  String mode,
 ) async {
   String url =
-      "https://maps.googleapis.com/maps/api/directions/json?origin=$StartLat,$StartLon&destination=$EndLat,$EndLon&mode=driving&key=$Api_Key";
+      "https://maps.googleapis.com/maps/api/directions/json?origin=$StartLat,$StartLon&destination=$EndLat,$EndLon&mode=$mode&key=$Api_Key";
 
   final response = await http.get(Uri.parse(url));
 
@@ -20,35 +25,86 @@ Future<Map<String, dynamic>> getDirections(
   }
 }
 
-// Example usage:
-/// Fetches and prints the distance and duration for a route between two locations.
+/// Fetches the distance and duration between two geographical points.
 ///
-/// This function utilizes the `getDirections` function to make an API call to
-/// the Google Maps Directions API. It retrieves the JSON response containing
-/// route information and extracts the distance and duration for the specified
-/// route. The extracted distance and duration are then printed to the console.
+/// This function uses the Google Maps Directions API to calculate the
+/// driving distance and estimated travel duration between the starting
+/// point ([StartLat], [StartLon]) and the ending point ([EndLat], [EndLon]).
 ///
 /// Parameters:
 /// - [StartLat]: The latitude of the starting location.
 /// - [StartLon]: The longitude of the starting location.
-/// - [EndLat]: The latitude of the ending location.
-/// - [EndLon]: The longitude of the ending location.
+/// - [EndLat]: The latitude of the destination location.
+/// - [EndLon]: The longitude of the destination location.
+///
+/// Returns:
+/// A [Future] that resolves to a [Map] containing the 'distance' and 'duration'
+/// as strings. The 'distance' is the total driving distance between the two
+/// points, and the 'duration' is the estimated travel time.
 
-void GetDistanceAndDuration(
+Future<Map<String, String>> GetDistanceAndDuration(
   double StartLat,
   double StartLon,
   double EndLat,
   double EndLon,
+  String mode,
 ) async {
-  var data = await getDirections(StartLat, StartLon, EndLat, EndLon);
-  print(data); // Parse the JSON response
+  var data = await getDirections(StartLat, StartLon, EndLat, EndLon, mode);
 
-  // Extract distance and duration
   var distance = data['routes'][0]['legs'][0]['distance']['text'];
   var duration = data['routes'][0]['legs'][0]['duration']['text'];
 
-  print('Distance: $distance');
-  print('Duration: $duration');
+  return {'distance': distance, 'duration': duration};
+}
 
-  print('tTHIS FUNCTION IS WORKING');
+Future<List<LatLng>> getRouteCoordinates(
+  double startLat,
+  double startLng,
+  double endLat,
+  double endLng,
+) async {
+  final String apiKey = Api_Key;
+  final String url =
+      "https://maps.googleapis.com/maps/api/directions/json?origin=$startLat,$startLng&destination=$endLat,$endLng&mode=walking&alternatives=true&key=$apiKey";
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    if ((data['routes'] as List).isNotEmpty) {
+      final polylinePoints = data['routes'][0]['overview_polyline']['points'];
+      print(
+        'GET ROUTES CORRDINATES IS WORKING _________________________________',
+      );
+      return decodePolyline(polylinePoints);
+    }
+  }
+  throw Exception('Failed to load directions');
+}
+
+void drawRoute({
+  required double endLat,
+  required double endLon,
+  required LatLng currentPosition,
+  required Function(Set<Polyline>) updatePolylines,
+}) async {
+  List<LatLng> routePoints = await getRouteCoordinates(
+    currentPosition.latitude,
+    currentPosition.longitude,
+    endLat,
+    endLon,
+  );
+
+  Set<Polyline> newPolylines = {
+    Polyline(
+      polylineId: const PolylineId('route'),
+      points: routePoints,
+      color: const Color.fromARGB(255, 243, 33, 215),
+      width: 5,
+    ),
+  };
+
+  updatePolylines(
+    newPolylines,
+  ); // Call function to update state in the main file
 }
