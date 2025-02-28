@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:flutter_frontend/util/location_service.dart';
+import 'package:flutter_frontend/util/BusStop_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -39,7 +40,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> initializeMap() async {
     // Fetch stops when the screen loads
-    _fetchBusStops();
+    _loadBusStops();
     getUserLiveLocation();
     //for getting the live location of the user [NEEDS TO BE CHANGED [IDK A BETTER WAY FOR THIS RIGHT NOW]]
     LocationController.onLocationChanged.listen((LocationData currentLocation) {
@@ -74,27 +75,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Fetch bus stops from Laravel API
-  Future<void> _fetchBusStops() async {
-    try {
-      final response = await http.get(
-        Uri.parse("http://10.0.2.2:8000/api/bus-stop"),
-      );
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          _busStops = data.map((stop) => BusStop.fromJson(stop)).toList();
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
-    }
-  }
-
   // Convert bus stops to Google Map markers
-  Set<Marker> _getBusStopMarkers() {
+  Set<Marker> getBusStopMarkers() {
     return _busStops.map((stop) {
       return Marker(
         markerId: MarkerId(stop.id.toString()),
@@ -237,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                     showAllPolylines
                         ? Set<Polyline>.of(polylines.values)
                         : polylinesDD, // Switch based on flag
-                markers: Set<Marker>.from(_getBusStopMarkers())..add(
+                markers: Set<Marker>.from(getBusStopMarkers())..add(
                   Marker(
                     markerId: MarkerId('currentLocation'),
                     position: currentPosition!,
@@ -257,7 +239,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //this 2 functions are helpers to set the sate so we can use them in the main file
+  //this 3 functions are helpers to set the sate so we can use them in the main file
   void updatePolylines(Set<Polyline> newPolylines) {
     setState(() {
       polylinesDD = newPolylines;
@@ -268,5 +250,33 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       polylines = newPolylines;
     });
+  }
+
+  void _loadBusStops() async {
+    try {
+      List<BusStop> stops = await BusStopService.fetchBusStops();
+      setState(() {
+        _busStops = stops;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  void loadBusStop(String routeId) async {
+    try {
+      List<BusStop> stops = await BusStopService.getBusStopsForOneRoute(
+        routeId,
+      );
+      setState(() {
+        _busStops = stops;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 }

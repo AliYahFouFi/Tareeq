@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/components/RoutesList.dart';
+import 'package:flutter_frontend/models/BusRoute_model.dart';
+import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
 import 'package:flutter_frontend/pages/page2.dart';
+import 'package:flutter_frontend/util/BusStop_service.dart';
+import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import '../pages/HomePage.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -11,6 +17,13 @@ class NavBar extends StatefulWidget {
 }
 
 class _NavBarState extends State<NavBar> {
+  //for bus routes
+  List<BusStop> stopsForOneRoute = [];
+
+  List<BusStop> GetstopsForOneRoute() {
+    return stopsForOneRoute;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GNav(
@@ -32,13 +45,9 @@ class _NavBarState extends State<NavBar> {
               ),
         ),
         GButton(
-          icon: Icons.person,
+          icon: Icons.directions_bus,
           text: 'Profile',
-          onPressed:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Page2()),
-              ),
+          onPressed: () => showBusRoutesBottomSheet(context),
         ),
         GButton(icon: Icons.settings, text: 'Settings'),
       ],
