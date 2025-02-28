@@ -21,7 +21,34 @@ Future<Map<String, dynamic>> getDirections(
 }
 
 // Example usage:
-void testdiraction() async {
-  var data = await getDirections(33.9014, 35.5196, 33.9010, 35.5422);
+/// Fetches and prints the distance and duration for a route between two locations.
+///
+/// This function utilizes the `getDirections` function to make an API call to
+/// the Google Maps Directions API. It retrieves the JSON response containing
+/// route information and extracts the distance and duration for the specified
+/// route. The extracted distance and duration are then printed to the console.
+///
+/// Parameters:
+/// - [StartLat]: The latitude of the starting location.
+/// - [StartLon]: The longitude of the starting location.
+/// - [EndLat]: The latitude of the ending location.
+/// - [EndLon]: The longitude of the ending location.
+
+void GetDistanceAndDuration(
+  double StartLat,
+  double StartLon,
+  double EndLat,
+  double EndLon,
+) async {
+  var data = await getDirections(StartLat, StartLon, EndLat, EndLon);
   print(data); // Parse the JSON response
+
+  // Extract distance and duration
+  var distance = data['routes'][0]['legs'][0]['distance']['text'];
+  var duration = data['routes'][0]['legs'][0]['duration']['text'];
+
+  print('Distance: $distance');
+  print('Duration: $duration');
+
+  print('tTHIS FUNCTION IS WORKING');
 }

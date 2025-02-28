@@ -5,6 +5,7 @@ import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/const.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
+import 'package:flutter_frontend/util/diractions_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
@@ -147,7 +148,8 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.location_searching),
         onPressed: () {
-          initializePolylines();
+          GetDistanceAndDuration(33.8938, 35.5018, 33.8938, 35.5018);
+          //  initializePolylines();
         },
       ),
     );
