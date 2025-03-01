@@ -20,7 +20,7 @@ class BusStopService {
     }
   }
 
-  //a function that takes a route and returns a list of bus stops
+  //a function that takes ONE route and returns a list of bus stops
   static Future<List<BusStop>> getBusStopsForOneRoute(String routeId) async {
     try {
       final response = await http.get(
@@ -28,8 +28,21 @@ class BusStopService {
       );
 
       if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        return data.map((stop) => BusStop.fromJson(stop)).toList();
+        final Map<String, dynamic> data = json.decode(response.body);
+        List<dynamic> stops = data['stops'];
+
+        List<BusStop> busStops =
+            stops.map((stop) {
+              return BusStop(
+                id: stop['id'],
+                name: stop['name'],
+                address: stop['address'],
+                latitude: double.parse(stop['latitude']),
+                longitude: double.parse(stop['longitude']),
+              );
+            }).toList();
+
+        return busStops;
       } else {
         throw Exception('Failed to load bus stops');
       }
