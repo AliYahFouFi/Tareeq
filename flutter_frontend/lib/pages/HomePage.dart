@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
+import 'package:flutter_frontend/components/RoutesList.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
 import 'package:flutter_frontend/util/diractions_service.dart';
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   static const LatLng _beirutLocation = LatLng(33.8938, 35.5018);
   late GoogleMapController _mapController;
   List<BusStop> _busStops = [];
-
+  bool showAllBusStops = false;
   // Two sets of polylines
   Map<PolylineId, Polyline> polylines = {};
   Set<Polyline> polylinesDD = {};
@@ -35,12 +36,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => initializeMap());
-    // WidgetsBinding.instance.addPostFrameCallback((_) => initializePolylines());
   }
 
   Future<void> initializeMap() async {
     // Fetch stops when the screen loads
-    _loadBusStops();
+    //_loadBusStops();
+
     getUserLiveLocation();
     //for getting the live location of the user [NEEDS TO BE CHANGED [IDK A BETTER WAY FOR THIS RIGHT NOW]]
     LocationController.onLocationChanged.listen((LocationData currentLocation) {
@@ -77,6 +78,7 @@ class _HomePageState extends State<HomePage> {
 
   // Convert bus stops to Google Map markers
   Set<Marker> getBusStopMarkers() {
+    loadSingleBusStopRoute();
     return _busStops.map((stop) {
       return Marker(
         markerId: MarkerId(stop.id.toString()),
@@ -214,18 +216,13 @@ class _HomePageState extends State<HomePage> {
                 myLocationEnabled: true,
                 myLocationButtonEnabled: false,
                 zoomControlsEnabled: true,
+                compassEnabled: true,
                 mapType: MapType.normal,
                 polylines:
                     showAllPolylines
                         ? Set<Polyline>.of(polylines.values)
                         : polylinesDD, // Switch based on flag
-                markers: Set<Marker>.from(getBusStopMarkers())..add(
-                  Marker(
-                    markerId: MarkerId('currentLocation'),
-                    position: currentPosition!,
-                    icon: BitmapDescriptor.defaultMarker,
-                  ),
-                ),
+                markers: getBusStopMarkers(),
               ),
       bottomNavigationBar: NavBar(),
 
@@ -234,6 +231,8 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           showAllPolylines = true;
           initializePolylines();
+          // clearBusStops();
+          _loadBusStops();
         },
       ),
     );
@@ -252,7 +251,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //load all the bus stops
   void _loadBusStops() async {
+    clearBusStops();
     try {
       List<BusStop> stops = await BusStopService.fetchBusStops();
       setState(() {
@@ -265,13 +266,17 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void loadBusStop(String routeId) async {
+  void clearBusStops() {
+    setState(() {
+      _busStops = [];
+    });
+  }
+
+  //this is for the single route to show it bus stops
+  void loadSingleBusStopRoute() async {
     try {
-      List<BusStop> stops = await BusStopService.getBusStopsForOneRoute(
-        routeId,
-      );
       setState(() {
-        _busStops = stops;
+        _busStops = ListForSingleRouteStops;
       });
     } catch (e) {
       ScaffoldMessenger.of(
