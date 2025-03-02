@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/components/RoutesList.dart';
+import 'package:flutter_frontend/components/bus_map.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
@@ -206,30 +207,18 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
-      body:
-          currentPosition == null
-              ? Center(child: CircularProgressIndicator())
-              : GoogleMap(
-                initialCameraPosition: const CameraPosition(
-                  target: _beirutLocation,
-                  zoom: 12.0,
-                ),
-                onMapCreated: (GoogleMapController controller) {
-                  _mapController = controller;
-                },
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: true,
-                compassEnabled: true,
-                mapType: MapType.normal,
-                polylines:
-                    showAllPolylines
-                        ? Set<Polyline>.of(polylines.values)
-                        : polylinesDD, // Switch based on flag
-                markers: getBusStopMarkers(),
-              ),
+      body: BusMap(
+        currentPosition: currentPosition,
+        polylines: polylines,
+        polylinesDD: polylinesDD,
+        showAllPolylines: showAllPolylines,
+        busStops: _busStops,
+        getBusStopMarkers: getBusStopMarkers,
+        onMapCreated: (GoogleMapController controller) {
+          _mapController = controller;
+        },
+      ),
       bottomNavigationBar: NavBar(),
-
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.location_searching),
         onPressed: () {
