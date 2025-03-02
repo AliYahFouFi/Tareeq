@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
+import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/BusStop_service.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 
 List<BusStop> ListForSingleRouteStops = [];
 
@@ -53,8 +55,10 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                   return GestureDetector(
                     onTap: () async {
                       String routeId = route['route_id'].toString();
-                      ListForSingleRouteStops =
-                          await BusStopService.getBusStopsForOneRoute(routeId);
+                      //this changes the value in the provider to the stops of the selected route
+                      context.read<BusStopsProvider>().setBusStops(
+                        await BusStopService.getBusStopsForOneRoute(routeId),
+                      );
                       print(
                         "THIS FUNCTION IS BUS DETAILS WORKING SOOIHUJIASFGHUASDF",
                       );
