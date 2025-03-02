@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_frontend/components/RoutesList.dart';
+import 'package:flutter_frontend/providers/BusRouteProvider.dart';
+
+import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'pages/HomePage.dart';
+import 'package:provider/provider.dart';
+import 'providers/BusStopsProvider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +15,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Tareeq',
-      home: HomePage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => BusStopsProvider()),
+        ChangeNotifierProvider(create: (context) => BusRouteProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Tareeq',
+        home: HomePage(),
+      ),
     );
   }
 }

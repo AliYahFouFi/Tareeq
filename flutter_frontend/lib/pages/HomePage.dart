@@ -4,6 +4,7 @@ import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/components/RoutesList.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
+import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/diractions_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:flutter_frontend/util/location_service.dart';
 import 'package:flutter_frontend/util/BusStop_service.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   static const LatLng _beirutLocation = LatLng(33.8938, 35.5018);
   late GoogleMapController _mapController;
   List<BusStop> _busStops = [];
-  bool showAllBusStops = false;
+
   // Two sets of polylines
   Map<PolylineId, Polyline> polylines = {};
   Set<Polyline> polylinesDD = {};
@@ -38,10 +40,13 @@ class _HomePageState extends State<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) => initializeMap());
   }
 
-  Future<void> initializeMap() async {
-    // Fetch stops when the screen loads
-    //_loadBusStops();
+  // in didChangeDependencies we get the busStops from the provider or any other
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _busStops = context.watch<BusStopsProvider>().busStops;
+  }
 
+  Future<void> initializeMap() async {
     getUserLiveLocation();
     //for getting the live location of the user [NEEDS TO BE CHANGED [IDK A BETTER WAY FOR THIS RIGHT NOW]]
     LocationController.onLocationChanged.listen((LocationData currentLocation) {
@@ -78,7 +83,6 @@ class _HomePageState extends State<HomePage> {
 
   // Convert bus stops to Google Map markers
   Set<Marker> getBusStopMarkers() {
-    loadSingleBusStopRoute();
     return _busStops.map((stop) {
       return Marker(
         markerId: MarkerId(stop.id.toString()),
@@ -231,8 +235,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           showAllPolylines = true;
           initializePolylines();
-          // clearBusStops();
-          _loadBusStops();
+          context.read<BusStopsProvider>().loadAllBusStops();
         },
       ),
     );
@@ -249,39 +252,5 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       polylines = newPolylines;
     });
-  }
-
-  //load all the bus stops
-  void _loadBusStops() async {
-    clearBusStops();
-    try {
-      List<BusStop> stops = await BusStopService.fetchBusStops();
-      setState(() {
-        _busStops = stops;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
-    }
-  }
-
-  void clearBusStops() {
-    setState(() {
-      _busStops = [];
-    });
-  }
-
-  //this is for the single route to show it bus stops
-  void loadSingleBusStopRoute() async {
-    try {
-      setState(() {
-        _busStops = ListForSingleRouteStops;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
-    }
   }
 }

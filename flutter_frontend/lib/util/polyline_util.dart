@@ -5,9 +5,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/const.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
+import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:http/http.dart' as context;
 import 'package:uuid/uuid.dart';
 
 /// Fetches polyline points for a route between two locations using the provided waypoints.
@@ -150,6 +152,18 @@ Future<List<BusRoute>> fetchAllBusRoutes() async {
 }
 
 Map<BusRoute, List<PolylineWayPoint>> routeWaypoints = {};
+
+/// Converts all bus routes into a map of [BusRoute] to a list of [PolylineWayPoint].
+///
+/// This asynchronous function fetches all bus routes using [fetchAllBusRoutes].
+/// It iterates over each route and its stops to construct a list of [PolylineWayPoint]
+/// for that route. Each stop's latitude and longitude are used to create a [PolylineWayPoint].
+/// The resulting map associates each [BusRoute] with its corresponding list of waypoints.
+///
+/// Returns:
+/// A [Future] that resolves to a [Map] where each key is a [BusRoute] and the value
+/// is a list of [PolylineWayPoint] representing the stops along that route.
+
 Future<Map<BusRoute, List<PolylineWayPoint>>>
 busRouteToPolylineWaypoints() async {
   List<BusRoute> routes = await fetchAllBusRoutes();
@@ -199,6 +213,7 @@ Future<void> generatePolyLineFromPoints(
     color: randomColor,
   );
   polylines[id] = polyline; // Update the polylines map
+
   updatePolylines(polylines); // Call function to update state in the main file
 }
 
