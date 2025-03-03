@@ -1,19 +1,14 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
-import 'package:flutter_frontend/components/RoutesList.dart';
 import 'package:flutter_frontend/components/bus_map.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
-import 'package:flutter_frontend/models/BusRoute_model.dart';
+import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/diractions_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:flutter_frontend/util/location_service.dart';
-import 'package:flutter_frontend/util/BusStop_service.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,17 +19,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Initial camera position centered on Beirut
-  static const LatLng _beirutLocation = LatLng(33.8938, 35.5018);
   late GoogleMapController _mapController;
   List<BusStop> _busStops = [];
 
-  // Two sets of polylines
-  Map<PolylineId, Polyline> polylines = {};
-  Set<Polyline> polylinesDD = {};
-
   // A flag to toggle between the sets
-  bool showAllPolylines = true;
+
   @override
   void initState() {
     super.initState();
@@ -61,25 +50,6 @@ class _HomePageState extends State<HomePage> {
         });
       }
     });
-  }
-
-  //TO initialize polylines and display all the routes fetched form the db
-  Future<void> initializePolylines() async {
-    routeWaypoints = await busRouteToPolylineWaypoints();
-    for (var entry in routeWaypoints.entries) {
-      BusRoute route = entry.key;
-      List<PolylineWayPoint> waypoints = entry.value;
-      List<PointLatLng> originDestination = removeFirstAndLastWaypoints(
-        waypoints,
-      );
-      final coordinates = await fetchPolylinePoints(
-        waypoints,
-        originDestination[0],
-        originDestination[1],
-      );
-      // polylines.clear();
-      generatePolyLineFromPoints(coordinates, polylines, updateAllPolylines);
-    }
   }
 
   // Convert bus stops to Google Map markers
@@ -162,13 +132,13 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              showAllPolylines = false;
-                              drawRoute(
+                            onTap: () async {
+                              context
+                                  .read<BusRouteProvider>()
+                                  .polylines = await drawRoute(
                                 endLat: stop.latitude,
                                 endLon: stop.longitude,
                                 currentPosition: currentPosition!,
-                                updatePolylines: updatePolylines,
                               );
                             },
 
@@ -209,9 +179,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: BusMap(
         currentPosition: currentPosition,
-        polylines: polylines,
-        polylinesDD: polylinesDD,
-        showAllPolylines: showAllPolylines,
+
         busStops: _busStops,
         getBusStopMarkers: getBusStopMarkers,
         onMapCreated: (GoogleMapController controller) {
@@ -221,25 +189,12 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavBar(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.location_searching),
-        onPressed: () {
-          showAllPolylines = true;
-          initializePolylines();
+        onPressed: () async {
+          context.read<BusRouteProvider>().polylines =
+              await initializePolylines();
           context.read<BusStopsProvider>().loadAllBusStops();
         },
       ),
     );
-  }
-
-  //this 3 functions are helpers to set the sate so we can use them in the main file
-  void updatePolylines(Set<Polyline> newPolylines) {
-    setState(() {
-      polylinesDD = newPolylines;
-    });
-  }
-
-  void updateAllPolylines(Map<PolylineId, Polyline> newPolylines) {
-    setState(() {
-      polylines = newPolylines;
-    });
   }
 }

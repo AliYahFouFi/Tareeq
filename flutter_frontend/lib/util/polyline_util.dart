@@ -5,11 +5,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/const.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
-import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:http/http.dart' as context;
 import 'package:uuid/uuid.dart';
 
 /// Fetches polyline points for a route between two locations using the provided waypoints.
@@ -187,36 +185,6 @@ busRouteToPolylineWaypoints() async {
   //],
 }
 
-Future<void> generatePolyLineFromPoints(
-  List<LatLng> pointCoordinates,
-  Map<PolylineId, Polyline> polylines,
-  Function(Map<PolylineId, Polyline>) updatePolylines,
-) async {
-  final PolylineId id = PolylineId(Uuid().v4()); // Generate a unique ID
-
-  final Random random = Random();
-  final List<Color> colors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow,
-    Colors.purple,
-    Colors.deepOrange,
-    // Add more colors as needed
-  ];
-  final Color randomColor = colors[random.nextInt(colors.length)];
-
-  final Polyline polyline = Polyline(
-    polylineId: id,
-    points: pointCoordinates,
-    width: 5,
-    color: randomColor,
-  );
-  polylines[id] = polyline; // Update the polylines map
-
-  updatePolylines(polylines); // Call function to update state in the main file
-}
-
 ///polyline direction api for marker
 
 List<LatLng> decodePolyline(String encoded) {
@@ -248,4 +216,62 @@ List<LatLng> decodePolyline(String encoded) {
     polylineCoordinates.add(LatLng(lat / 1E5, lng / 1E5));
   }
   return polylineCoordinates;
+}
+
+Future<Set<Polyline>> generatePolyLineFromPoints(
+  List<LatLng> pointCoordinates,
+) async {
+  final PolylineId id = PolylineId(Uuid().v4()); // Generate a unique ID
+
+  final Random random = Random();
+  final List<Color> colors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.yellow,
+    Colors.purple,
+    Colors.deepOrange,
+  ];
+  final Color randomColor = colors[random.nextInt(colors.length)];
+
+  final Polyline polyline = Polyline(
+    polylineId: id,
+    points: pointCoordinates,
+    width: 5,
+    color: randomColor,
+  );
+
+  return {polyline}; // Return a Set of polylines
+}
+
+//TO initialize polylines and display all the routes fetched form the db
+Future<Set<Polyline>> initializePolylines() async {
+  Set<Polyline> newPolylines = {}; // Store all generated polylines
+
+  routeWaypoints = await busRouteToPolylineWaypoints();
+
+  for (var entry in routeWaypoints.entries) {
+    BusRoute route = entry.key;
+    List<PolylineWayPoint> waypoints = entry.value;
+
+    if (waypoints.length < 2) continue; // Ensure there are enough points
+
+    List<PointLatLng> originDestination = removeFirstAndLastWaypoints(
+      waypoints,
+    );
+
+    final coordinates = await fetchPolylinePoints(
+      waypoints,
+      originDestination[0],
+      originDestination[1],
+    );
+
+    Set<Polyline> generatedPolylines = await generatePolyLineFromPoints(
+      coordinates,
+    );
+
+    newPolylines.addAll(generatedPolylines);
+  }
+
+  return newPolylines;
 }

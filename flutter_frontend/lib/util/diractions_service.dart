@@ -1,15 +1,14 @@
 import 'dart:ui';
 
-import 'package:flutter_frontend/providers/BusRouteProvider.dart';
-import 'package:flutter_frontend/providers/BusStopsProvider.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart' as context;
 import 'dart:convert';
-import '../providers/BusRouteProvider.dart';
 import 'polyline_util.dart';
 import '../const.dart';
 
+// makes a GET request to the Google Maps Directions API to retrieve directions between two geographical points. It takes the start and end coordinates,
+// as well as the mode of transportation (e.g., driving, walking, etc.), and returns a JSON response as a Map<String, dynamic>. If the request fails, it throws an exception
 Future<Map<String, dynamic>> getDirections(
   double StartLat,
   double StartLon,
@@ -86,11 +85,10 @@ Future<List<LatLng>> getRouteCoordinates(
   throw Exception('Failed to load directions');
 }
 
-void drawRoute({
+Future<Set<Polyline>> drawRoute({
   required double endLat,
   required double endLon,
   required LatLng currentPosition,
-  required Function(Set<Polyline>) updatePolylines,
 }) async {
   List<LatLng> routePoints = await getRouteCoordinates(
     currentPosition.latitude,
@@ -99,15 +97,15 @@ void drawRoute({
     endLon,
   );
 
-  Set<Polyline> newPolylines = {
+  return {
     Polyline(
       polylineId: const PolylineId('route'),
       points: routePoints,
-      color: const Color.fromARGB(255, 243, 33, 215),
       width: 5,
+      // ignore: deprecated_member_use
+      color: Colors.blue.withOpacity(0.7), // Add transparency
+      patterns: [PatternItem.dash(15), PatternItem.gap(10)],
+      onTap: () => print('Route tapped'),
     ),
   };
-
-  updatePolylines(newPolylines);
-  // Call function to update state in the main file
 }
