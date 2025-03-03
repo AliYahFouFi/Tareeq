@@ -54,12 +54,13 @@ class _HomePageState extends State<HomePage> {
 
   // Convert bus stops to Google Map markers
   Set<Marker> getBusStopMarkers() {
+    BitmapDescriptor icon = context.watch<BusStopsProvider>().busStopIcon;
     return _busStops.map((stop) {
       return Marker(
         markerId: MarkerId(stop.id.toString()),
         position: LatLng(stop.latitude, stop.longitude),
         infoWindow: InfoWindow(title: stop.name),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        icon: icon,
         onTap: () {
           showModalBottomSheet(
             context: context,
