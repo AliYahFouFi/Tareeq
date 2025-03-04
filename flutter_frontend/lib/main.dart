@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
-
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'pages/HomePage.dart';
 import 'package:provider/provider.dart';
-import 'providers/BusStopsProvider.dart';
 
 void main() {
   runApp(const MyApp());

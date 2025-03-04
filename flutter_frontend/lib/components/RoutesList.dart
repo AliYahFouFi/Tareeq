@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
-import 'package:flutter_frontend/models/BusStop_model.dart';
+
+import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/BusStop_service.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-
-List<BusStop> ListForSingleRouteStops = [];
 
 Future<List<Map<String, dynamic>>> getBusRoutesWithFirstAndLastStop() async {
   List<BusRoute> busRoutes = await fetchAllBusRoutes();
@@ -59,8 +58,12 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                       context.read<BusStopsProvider>().setBusStops(
                         await BusStopService.getBusStopsForOneRoute(routeId),
                       );
+                      Set<Polyline> polylineForOneRoute =
+                          await generatePolylineForOneRoute(routeId);
+                      context.read<BusRouteProvider>().polylines =
+                          polylineForOneRoute;
                       print(
-                        "THIS FUNCTION IS BUS DETAILS WORKING SOOIHUJIASFGHUASDF",
+                        "THIS FUNCTION IS BUS DETAILS WORKING SOOIHUJIASFGHUASDF ",
                       );
                     },
                     child: Card(
@@ -68,7 +71,7 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                       margin: EdgeInsets.symmetric(vertical: 8),
                       child: ListTile(
                         title: Text(
-                          route['route_id'].toString(),
+                          route['route_name'].toString(),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
@@ -86,15 +89,4 @@ void showBusRoutesBottomSheet(BuildContext context) async {
       );
     },
   );
-}
-
-Set<Marker> createBusStopMarkers(List<BusStop> busStops) {
-  return busStops.map((stop) {
-    return Marker(
-      markerId: MarkerId(stop.id.toString()),
-      position: LatLng(stop.latitude, stop.longitude),
-      infoWindow: InfoWindow(title: stop.name),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-    );
-  }).toSet();
 }

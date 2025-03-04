@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
+import 'package:provider/provider.dart';
 
 class BusMap extends StatefulWidget {
   final LatLng? currentPosition;
-  final Map<PolylineId, Polyline> polylines;
-  final Set<Polyline> polylinesDD;
-  final bool showAllPolylines;
+
   final List<BusStop> busStops;
   final Set<Marker> Function() getBusStopMarkers;
   final Function(GoogleMapController) onMapCreated;
@@ -14,9 +14,6 @@ class BusMap extends StatefulWidget {
   const BusMap({
     Key? key,
     required this.currentPosition,
-    required this.polylines,
-    required this.polylinesDD,
-    required this.showAllPolylines,
     required this.busStops,
     required this.getBusStopMarkers,
     required this.onMapCreated,
@@ -57,9 +54,7 @@ class _BusMapState extends State<BusMap> {
           zoomControlsEnabled: false, // Removes default zoom buttons
           compassEnabled: true,
           mapType: MapType.normal,
-          polylines: widget.showAllPolylines
-              ? Set<Polyline>.of(widget.polylines.values)
-              : widget.polylinesDD,
+          polylines: context.watch<BusRouteProvider>().polylines,
           markers: widget.getBusStopMarkers(),
           onCameraMove: (position) {
             if ((position.target.latitude - _beirutLocation.latitude).abs() >
@@ -77,7 +72,7 @@ class _BusMapState extends State<BusMap> {
         Positioned(
           bottom: 77.5,
           right: 15,
-          child:Container(
+          child: Container(
             width: 56,
             height: 56,
             decoration: BoxDecoration(
@@ -121,9 +116,7 @@ class _BusMapState extends State<BusMap> {
 
   /// Function to zoom out
   void _zoomOut() {
-    _mapController.animateCamera(
-      CameraUpdate.zoomOut(),
-    );
+    _mapController.animateCamera(CameraUpdate.zoomOut());
   }
 
   /// Function to zoom to user location
