@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
         markerId: MarkerId(stop.id.toString()),
         position: LatLng(stop.latitude, stop.longitude),
         infoWindow: InfoWindow(title: stop.name),
-        icon: icon,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         onTap: () {
           showModalBottomSheet(
             context: context,
@@ -192,7 +192,7 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.location_searching),
         onPressed: () async {
           context.read<BusRouteProvider>().polylines =
-              await initializePolylines();
+              await initializeAllPolylines();
           context.read<BusStopsProvider>().loadAllBusStops();
         },
       ),

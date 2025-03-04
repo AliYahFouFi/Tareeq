@@ -237,15 +237,18 @@ Future<Set<Polyline>> generatePolyLineFromPoints(
   final Polyline polyline = Polyline(
     polylineId: id,
     points: pointCoordinates,
-    width: 5,
+    width: 10,
     color: randomColor,
+    onTap: () {
+      print('agusgfhjkadgfhjkadgfhjkadgfhjkadg');
+    },
   );
 
   return {polyline}; // Return a Set of polylines
 }
 
 //TO initialize polylines and display all the routes fetched form the db
-Future<Set<Polyline>> initializePolylines() async {
+Future<Set<Polyline>> initializeAllPolylines() async {
   Set<Polyline> newPolylines = {}; // Store all generated polylines
 
   routeWaypoints = await busRouteToPolylineWaypoints();
@@ -274,4 +277,28 @@ Future<Set<Polyline>> initializePolylines() async {
   }
 
   return newPolylines;
+}
+
+//to display the polyline on the map for one route
+Future<Set<Polyline>> generatePolylineForOneRoute(String routeId) async {
+  Set<Polyline> oneRoutePolyline = {}; // Store all generated polylines
+  List<PolylineWayPoint> waypoints = await getBusRoutePolyline(routeId);
+
+  if (waypoints.length > 2) {
+    List<PointLatLng> originDestination = removeFirstAndLastWaypoints(
+      waypoints,
+    );
+    final coordinates = await fetchPolylinePoints(
+      waypoints,
+      originDestination[0],
+      originDestination[1],
+    );
+
+    // ✅ Assign to the original `oneRoutePolyline` instead of creating a new variable
+    oneRoutePolyline = await generatePolyLineFromPoints(coordinates);
+
+    print("oneRoutePolyline: $oneRoutePolyline ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅");
+  }
+
+  return oneRoutePolyline;
 }

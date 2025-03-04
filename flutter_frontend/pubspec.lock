@@ -98,10 +98,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "615a505aef59b151b46bbeef55b36ce2b6ed299d160c51d84281946f0aa0ce0e"
+      sha256: "5a1e6fb2c0561958d7e4c33574674bda7b77caaca7a33b758876956f2902eea3"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.24"
+    version: "2.0.27"
   flutter_polyline_points:
     dependency: "direct main"
     description:
@@ -180,18 +180,18 @@ packages:
     dependency: "direct main"
     description:
       name: google_maps_flutter
-      sha256: "209856c8e5571626afba7182cf634b2910069dc567954e76ec3e3fb37f5e9db3"
+      sha256: "621125e35e81ca39ef600e45243d2be93167e61def72bc7207b0c4a635c58506"
       url: "https://pub.dev"
     source: hosted
-    version: "2.10.0"
+    version: "2.10.1"
   google_maps_flutter_android:
     dependency: transitive
     description:
       name: google_maps_flutter_android
-      sha256: "1b69fbb3ab76e7a7dfcf25e60f32f81ae5d9b88285343eecb5479116d54be869"
+      sha256: "721ffae2240e957c04b0de19ffd4b68580adb57a8224496b7fb55fad23aec98a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.14.12"
+    version: "2.14.13"
   google_maps_flutter_ios:
     dependency: transitive
     description:
@@ -204,18 +204,18 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_platform_interface
-      sha256: "74bf554a3697765654d3b9140e47e6bff2fdc1e91b8a4f8eafe37de44932423c"
+      sha256: "970c8f766c02909c7be282dea923c971f83a88adaf07f8871d0aacebc3b07bb2"
       url: "https://pub.dev"
     source: hosted
-    version: "2.11.0"
+    version: "2.11.1"
   google_maps_flutter_web:
     dependency: transitive
     description:
       name: google_maps_flutter_web
-      sha256: ff39211bd25d7fad125d19f757eba85bd154460907cd4d135e07e3d0f98a4130
+      sha256: a9fd5356d46f54744ced1ebedbbf212f3d2cb71e95d79b1d08690c1ec33dc584
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.10"
+    version: "0.5.10+1"
   google_nav_bar:
     dependency: "direct main"
     description:
@@ -473,10 +473,10 @@ packages:
     dependency: transitive
     description:
       name: web
-      sha256: cd3543bd5798f6ad290ea73d210f423502e71900302dde696f8bff84bf89a1cb
+      sha256: "868d88a33d8a87b18ffc05f9f030ba328ffefba92d6c127917a2ba740f9cfe4a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
 sdks:
   dart: ">=3.7.0 <4.0.0"
   flutter: ">=3.27.0"
