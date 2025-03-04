@@ -90,14 +90,3 @@ void showBusRoutesBottomSheet(BuildContext context) async {
     },
   );
 }
-
-Set<Marker> createBusStopMarkers(List<BusStop> busStops) {
-  return busStops.map((stop) {
-    return Marker(
-      markerId: MarkerId(stop.id.toString()),
-      position: LatLng(stop.latitude, stop.longitude),
-      infoWindow: InfoWindow(title: stop.name),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-    );
-  }).toSet();
-}
