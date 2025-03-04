@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
-import 'package:flutter_frontend/models/BusStop_model.dart';
+
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/BusStop_service.dart';
