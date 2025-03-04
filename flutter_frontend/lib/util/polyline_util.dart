@@ -237,7 +237,7 @@ Future<Set<Polyline>> generatePolyLineFromPoints(
   final Polyline polyline = Polyline(
     polylineId: id,
     points: pointCoordinates,
-    width: 10,
+    width: 5,
     color: randomColor,
     onTap: () {
       print('agusgfhjkadgfhjkadgfhjkadgfhjkadg');
@@ -293,11 +293,7 @@ Future<Set<Polyline>> generatePolylineForOneRoute(String routeId) async {
       originDestination[0],
       originDestination[1],
     );
-
-    // ✅ Assign to the original `oneRoutePolyline` instead of creating a new variable
     oneRoutePolyline = await generatePolyLineFromPoints(coordinates);
-
-    print("oneRoutePolyline: $oneRoutePolyline ✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅");
   }
 
   return oneRoutePolyline;
