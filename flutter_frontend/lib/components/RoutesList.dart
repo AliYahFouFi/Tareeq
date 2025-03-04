@@ -71,7 +71,7 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                       margin: EdgeInsets.symmetric(vertical: 8),
                       child: ListTile(
                         title: Text(
-                          route['route_id'].toString(),
+                          route['route_name'].toString(),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
