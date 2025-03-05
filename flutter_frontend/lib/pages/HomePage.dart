@@ -4,11 +4,10 @@ import 'package:flutter_frontend/components/bus_map.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
+import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:flutter_frontend/util/diractions_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
-import 'package:flutter_frontend/util/location_service.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,7 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late GoogleMapController _mapController;
   List<BusStop> _busStops = [];
-
+  LatLng? _currentPosition;
   // A flag to toggle between the sets
 
   @override
@@ -34,22 +33,11 @@ class _HomePageState extends State<HomePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _busStops = context.watch<BusStopsProvider>().busStops;
+    _currentPosition = context.watch<UserLocationProvider>().getUserLocation();
   }
 
   Future<void> initializeMap() async {
-    getUserLiveLocation();
-    //for getting the live location of the user [NEEDS TO BE CHANGED [IDK A BETTER WAY FOR THIS RIGHT NOW]]
-    LocationController.onLocationChanged.listen((LocationData currentLocation) {
-      if (currentLocation.latitude != null &&
-          currentLocation.longitude != null) {
-        setState(() {
-          currentPosition = LatLng(
-            currentLocation.latitude!,
-            currentLocation.longitude!,
-          );
-        });
-      }
-    });
+    await context.read<UserLocationProvider>().initializeLocation();
   }
 
   // Convert bus stops to Google Map markers
@@ -109,8 +97,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                             onTap: () async {
                               var data = await GetDistanceAndDuration(
-                                currentPosition!.latitude,
-                                currentPosition!.longitude,
+                                _currentPosition!.latitude,
+                                _currentPosition!.longitude,
                                 stop.latitude,
                                 stop.longitude,
                                 'walking',
@@ -139,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                                   .polylines = await drawRoute(
                                 endLat: stop.latitude,
                                 endLon: stop.longitude,
-                                currentPosition: currentPosition!,
+                                currentPosition: _currentPosition!,
                               );
                             },
 
@@ -179,7 +167,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: BusMap(
-        currentPosition: currentPosition,
+        currentPosition: _currentPosition,
 
         busStops: _busStops,
         getBusStopMarkers: getBusStopMarkers,

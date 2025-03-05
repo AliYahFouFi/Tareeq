@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
+import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:provider/provider.dart';
@@ -32,10 +33,13 @@ class _BusMapState extends State<BusMap> {
     return Stack(
       children: [
         GoogleMap(
-          initialCameraPosition: const CameraPosition(
-            target: _beirutLocation,
-            zoom: 12.0,
+          initialCameraPosition: CameraPosition(
+            target:
+                context.watch<UserLocationProvider>().getUserLocation() ??
+                _beirutLocation, // Default to Beirut
+            zoom: 15,
           ),
+
           onMapCreated: (controller) {
             _mapController = controller;
             widget.onMapCreated(controller);
