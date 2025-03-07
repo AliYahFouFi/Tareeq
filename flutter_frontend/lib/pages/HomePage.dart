@@ -122,13 +122,29 @@ class _HomePageState extends State<HomePage> {
                           ),
                           GestureDetector(
                             onTap: () async {
-                              context
-                                  .read<BusRouteProvider>()
-                                  .polylines = await drawRoute(
-                                endLat: stop.latitude,
-                                endLon: stop.longitude,
-                                currentPosition: _currentPosition!,
+                              final userLocationProvider =
+                                  context.read<UserLocationProvider>();
+                              final busRouteProvider =
+                                  context.read<BusRouteProvider>();
+
+                              LatLng currentPos =
+                                  userLocationProvider.currentPosition!;
+
+                              busRouteProvider.updateRoute(
+                                currentPos,
+                                LatLng(stop.latitude, stop.longitude),
                               );
+
+                              // Listen for location changes and update route dynamically
+                              userLocationProvider.addListener(() {
+                                if (userLocationProvider.currentPosition !=
+                                    null) {
+                                  busRouteProvider.updateRoute(
+                                    userLocationProvider.currentPosition!,
+                                    LatLng(stop.latitude, stop.longitude),
+                                  );
+                                }
+                              });
                             },
 
                             child: Container(
