@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
+import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:flutter_frontend/util/diractions_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,25 @@ class DrawRouteButton extends StatelessWidget {
           stop.longitude,
           'walking',
         );
+        final userLocationProvider = context.read<UserLocationProvider>();
+        final busRouteProvider = context.read<BusRouteProvider>();
+
+        LatLng currentPos = userLocationProvider.currentPosition!;
+
+        busRouteProvider.updateRoute(
+          currentPos,
+          LatLng(stop.latitude, stop.longitude),
+        );
+
+        // Listen for location changes and update route dynamically
+        userLocationProvider.addListener(() {
+          if (userLocationProvider.currentPosition != null) {
+            busRouteProvider.updateRoute(
+              userLocationProvider.currentPosition!,
+              LatLng(stop.latitude, stop.longitude),
+            );
+          }
+        });
 
         setInfoVisible();
       },

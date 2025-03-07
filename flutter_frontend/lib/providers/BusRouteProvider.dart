@@ -29,4 +29,13 @@ class BusRouteProvider extends ChangeNotifier {
     this.duration = data['routes'][0]['legs'][0]['duration']['text'];
     notifyListeners();
   }
+
+  Future<void> updateRoute(LatLng currentPosition, LatLng destination) async {
+    Set<Polyline> newRoute = await drawRoute(
+      endLat: destination.latitude,
+      endLon: destination.longitude,
+      currentPosition: currentPosition,
+    );
+    setPolyline(newRoute);
+  }
 }
