@@ -47,7 +47,7 @@ class UserLocationProvider extends ChangeNotifier {
           currentLocation.latitude!,
           currentLocation.longitude!,
         );
-        notifyListeners(); // Notify widgets listening to this provider
+        notifyListeners(); // Notify widgets that are listening
       }
     });
   }
