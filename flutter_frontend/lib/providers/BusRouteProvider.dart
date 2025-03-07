@@ -16,6 +16,7 @@ class BusRouteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
   Future<void> GetDistanceAndDuration(
     double StartLat,
     double StartLon,
@@ -29,6 +30,7 @@ class BusRouteProvider extends ChangeNotifier {
     this.duration = data['routes'][0]['legs'][0]['duration']['text'];
     notifyListeners();
   }
+
 
   Future<void> updateRoute(LatLng currentPosition, LatLng destination) async {
     Set<Polyline> newRoute = await drawRoute(

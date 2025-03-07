@@ -101,7 +101,7 @@ Future<Set<Polyline>> drawRoute({
       points: routePoints,
       width: 5,
       // ignore: deprecated_member_use
-      color: Colors.blue.withOpacity(0.7), // Add transparency
+      color: Colors.blue.withOpacity(0.7), // Transparent blue line
       patterns: [PatternItem.dash(15), PatternItem.gap(10)],
       onTap: () => print('Route tapped'),
     ),

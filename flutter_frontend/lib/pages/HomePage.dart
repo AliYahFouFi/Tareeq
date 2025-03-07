@@ -95,10 +95,12 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
+
                           DrawRouteButton(
                             stop: stop,
                             currentPosition: _currentPosition!,
                             setInfoVisible: setInfoVisiblity,
+
                           ),
                         ],
                       ),
