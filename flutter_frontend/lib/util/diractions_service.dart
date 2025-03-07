@@ -65,8 +65,9 @@ Future<List<LatLng>> getRouteCoordinates(
   double endLng,
 ) async {
   final String apiKey = Api_Key;
-  final String url =
-      "https://maps.googleapis.com/maps/api/directions/json?origin=$startLat,$startLng&destination=$endLat,$endLng&mode=walking&alternatives=true&key=$apiKey";
+  //UN COMMENT THIS LINE TO GET DIRECTIONS FROM GOOGLE MAPS I HVE COMMENTED  IT SO WE DONT SPEND MONY ON API CALLS
+  final String url = '';
+  //"https://maps.googleapis.com/maps/api/directions/json?origin=$startLat,$startLng&destination=$endLat,$endLng&mode=walking&alternatives=true&key=$apiKey";
 
   final response = await http.get(Uri.parse(url));
 

@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class UserLocationProvider extends ChangeNotifier {
   final Location _locationController = Location();
   LatLng? _currentPosition;
+
   bool _serviceEnabled = false;
   PermissionStatus _permissionGranted = PermissionStatus.denied;
 
