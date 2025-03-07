@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/components/bus_map.dart';
+import 'package:flutter_frontend/components/drawRouteBtn.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
-import 'package:flutter_frontend/util/diractions_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:provider/provider.dart';
@@ -21,8 +21,9 @@ class _HomePageState extends State<HomePage> {
   late GoogleMapController _mapController;
   List<BusStop> _busStops = [];
   LatLng? _currentPosition;
-  // A flag to toggle between the sets
-
+  bool _isInfoVisible = false;
+  String _distance = '';
+  String __duration = '';
   @override
   void initState() {
     super.initState();
@@ -34,6 +35,8 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
     _busStops = context.watch<BusStopsProvider>().busStops;
     _currentPosition = context.watch<UserLocationProvider>().getUserLocation();
+    _distance = context.read<BusRouteProvider>().distance;
+    __duration = context.read<BusRouteProvider>().duration;
   }
 
   Future<void> initializeMap() async {
@@ -81,34 +84,6 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
 
-                          GestureDetector(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.deepPurple,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Get Distance and Duration',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
-                            onTap: () async {
-                              var data = await GetDistanceAndDuration(
-                                _currentPosition!.latitude,
-                                _currentPosition!.longitude,
-                                stop.latitude,
-                                stop.longitude,
-                                'walking',
-                              );
-                              setState(() {
-                                _distance = data["distance"];
-                                _duration = data['duration'];
-                              });
-                            },
-                          ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
@@ -120,46 +95,12 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () async {
-                              final userLocationProvider =
-                                  context.read<UserLocationProvider>();
-                              final busRouteProvider =
-                                  context.read<BusRouteProvider>();
 
-                              LatLng currentPos =
-                                  userLocationProvider.currentPosition!;
+                          DrawRouteButton(
+                            stop: stop,
+                            currentPosition: _currentPosition!,
+                            setInfoVisible: setInfoVisiblity,
 
-                              busRouteProvider.updateRoute(
-                                currentPos,
-                                LatLng(stop.latitude, stop.longitude),
-                              );
-
-                              // Listen for location changes and update route dynamically
-                              userLocationProvider.addListener(() {
-                                if (userLocationProvider.currentPosition !=
-                                    null) {
-                                  busRouteProvider.updateRoute(
-                                    userLocationProvider.currentPosition!,
-                                    LatLng(stop.latitude, stop.longitude),
-                                  );
-                                }
-                              });
-                            },
-
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.deepPurple,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Draw Route',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -178,18 +119,43 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(' Tareeq', style: TextStyle(color: Colors.white)),
+        title: const Text('Tareeq', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
-      body: BusMap(
-        currentPosition: _currentPosition,
+      body: Column(
+        children: [
+          // Info Box Below the App Bar
+          Visibility(
+            visible: _isInfoVisible, // Toggle this variable
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12),
+              // ignore: deprecated_member_use
+              color: const Color.fromARGB(255, 243, 65, 33).withOpacity(0.2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 
-        busStops: _busStops,
-        getBusStopMarkers: getBusStopMarkers,
-        onMapCreated: (GoogleMapController controller) {
-          _mapController = controller;
-        },
+                children: [
+                  Text('Distance:$_distance '),
+                  Text('Duration:$__duration '),
+                ],
+              ),
+            ),
+          ),
+
+          // Map Section
+          Expanded(
+            child: BusMap(
+              currentPosition: _currentPosition,
+              busStops: _busStops,
+              getBusStopMarkers: getBusStopMarkers,
+              onMapCreated: (GoogleMapController controller) {
+                _mapController = controller;
+              },
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: NavBar(),
       floatingActionButton: FloatingActionButton(
@@ -201,5 +167,11 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  setInfoVisiblity() {
+    setState(() {
+      _isInfoVisible = true;
+    });
   }
 }
