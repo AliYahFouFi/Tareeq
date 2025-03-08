@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -6,7 +8,9 @@ class UserLocationProvider extends ChangeNotifier {
   final Location _locationController = Location();
   LatLng? _currentPosition;
   bool _serviceEnabled = false;
+  LatLng? _lastUpdatedPosition; // Store last position
   PermissionStatus _permissionGranted = PermissionStatus.denied;
+  bool isInfoVisible = false;
 
   LatLng? get currentPosition => _currentPosition;
   LatLng? getUserLocation() {
@@ -43,12 +47,34 @@ class UserLocationProvider extends ChangeNotifier {
     ) {
       if (currentLocation.latitude != null &&
           currentLocation.longitude != null) {
-        _currentPosition = LatLng(
+        LatLng newPosition = LatLng(
           currentLocation.latitude!,
           currentLocation.longitude!,
         );
-        notifyListeners(); // Notify widgets that are listening
+
+        // Update only if moved at least 20 meters
+        if (_lastUpdatedPosition == null ||
+            _calculateDistance(_lastUpdatedPosition!, newPosition) > 20) {
+          _currentPosition = newPosition;
+          _lastUpdatedPosition = newPosition; // Save last updated position
+          notifyListeners();
+        }
       }
     });
+  }
+
+  double _calculateDistance(LatLng start, LatLng end) {
+    const double earthRadius = 6371000; // in meters
+    double dLat = (end.latitude - start.latitude) * (pi / 180);
+    double dLon = (end.longitude - start.longitude) * (pi / 180);
+
+    double a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(start.latitude * (pi / 180)) *
+            cos(end.latitude * (pi / 180)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
+    return earthRadius * 2 * atan2(sqrt(a), sqrt(1 - a));
   }
 }
