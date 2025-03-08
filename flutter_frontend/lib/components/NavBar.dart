@@ -41,7 +41,7 @@ class _NavBarState extends State<NavBar> {
         ),
         GButton(
           icon: Icons.directions_bus,
-          text: 'Profile',
+          text: 'Routes',
           onPressed: () => showBusRoutesBottomSheet(context),
         ),
         GButton(icon: Icons.settings, text: 'Settings'),
