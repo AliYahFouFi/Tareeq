@@ -43,21 +43,6 @@ Future<Map<String, dynamic>> getDirections(
 /// as strings. The 'distance' is the total driving distance between the two
 /// points, and the 'duration' is the estimated travel time.
 
-// Future<Map<String, String>> GetDistanceAndDuration(
-//   double StartLat,
-//   double StartLon,
-//   double EndLat,
-//   double EndLon,
-//   String mode,
-// ) async {
-//   var data = await getDirections(StartLat, StartLon, EndLat, EndLon, mode);
-
-//   var distance = data['routes'][0]['legs'][0]['distance']['text'];
-//   var duration = data['routes'][0]['legs'][0]['duration']['text'];
-
-//   return {'distance': distance, 'duration': duration};
-// }
-
 Future<List<LatLng>> getRouteCoordinates(
   double startLat,
   double startLng,
