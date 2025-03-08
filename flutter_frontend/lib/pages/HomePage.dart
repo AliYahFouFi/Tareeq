@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/components/bus_map.dart';
 import 'package:flutter_frontend/components/drawRouteBtn.dart';
+import 'package:flutter_frontend/components/floatingInfoCard.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:provider/provider.dart';
+import '../components/infoTile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   LatLng? _currentPosition;
   bool _isInfoVisible = false;
   String _distance = '';
-  String __duration = '';
+  String _duration = '';
   @override
   void initState() {
     super.initState();
@@ -36,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     _busStops = context.watch<BusStopsProvider>().busStops;
     _currentPosition = context.watch<UserLocationProvider>().getUserLocation();
     _distance = context.read<BusRouteProvider>().distance;
-    __duration = context.read<BusRouteProvider>().duration;
+    _duration = context.read<BusRouteProvider>().duration;
   }
 
   Future<void> initializeMap() async {
@@ -56,9 +58,6 @@ class _HomePageState extends State<HomePage> {
           showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
-              String? _distance = '';
-              String? _duration = '';
-
               return StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState) {
                   return Padding(
@@ -99,8 +98,7 @@ class _HomePageState extends State<HomePage> {
                           DrawRouteButton(
                             stop: stop,
                             currentPosition: _currentPosition!,
-                            setInfoVisible: setInfoVisiblity,
-
+                            setInfoVisible: setInfoVisibility,
                           ),
                         ],
                       ),
@@ -123,29 +121,10 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Info Box Below the App Bar
-          Visibility(
-            visible: _isInfoVisible, // Toggle this variable
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(12),
-              // ignore: deprecated_member_use
-              color: const Color.fromARGB(255, 243, 65, 33).withOpacity(0.2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
-                children: [
-                  Text('Distance:$_distance '),
-                  Text('Duration:$__duration '),
-                ],
-              ),
-            ),
-          ),
-
-          // Map Section
-          Expanded(
+          // Map Section (This is at the bottom)
+          Positioned.fill(
             child: BusMap(
               currentPosition: _currentPosition,
               busStops: _busStops,
@@ -155,6 +134,15 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
+
+          // Floating Info Box
+          if (_isInfoVisible)
+            // Floating Info Card
+            FloatingInfoCard(
+              distance: _distance,
+              duration: _duration,
+              isVisible: _isInfoVisible, // Toggle visibility
+            ),
         ],
       ),
       bottomNavigationBar: NavBar(),
@@ -169,7 +157,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  setInfoVisiblity() {
+  setInfoVisibility() {
     setState(() {
       _isInfoVisible = true;
     });
