@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 class DrawRouteButton extends StatelessWidget {
   final BusStop stop;
-  final Function setInfoVisible;
+  final bool setInfoVisible;
   final LatLng currentPosition; // Ensure you import your Position model
 
   const DrawRouteButton({
@@ -54,8 +54,9 @@ class DrawRouteButton extends StatelessWidget {
           }
         });
 
-        setInfoVisible();
+        // setInfoVisible();
       },
+      //change this to changer the style
       child: Container(
         decoration: BoxDecoration(
           color: Colors.deepPurple,

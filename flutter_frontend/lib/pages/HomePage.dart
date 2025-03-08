@@ -37,8 +37,9 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
     _busStops = context.watch<BusStopsProvider>().busStops;
     _currentPosition = context.watch<UserLocationProvider>().getUserLocation();
-    _distance = context.read<BusRouteProvider>().distance;
-    _duration = context.read<BusRouteProvider>().duration;
+    _distance = context.watch<BusRouteProvider>().distance;
+    _duration = context.watch<BusRouteProvider>().duration;
+    _isInfoVisible = context.watch<UserLocationProvider>().isInfoVisible;
   }
 
   Future<void> initializeMap() async {
@@ -98,7 +99,10 @@ class _HomePageState extends State<HomePage> {
                           DrawRouteButton(
                             stop: stop,
                             currentPosition: _currentPosition!,
-                            setInfoVisible: setInfoVisibility,
+                            setInfoVisible:
+                                context
+                                    .read<UserLocationProvider>()
+                                    .isInfoVisible = true,
                           ),
                         ],
                       ),
@@ -141,7 +145,7 @@ class _HomePageState extends State<HomePage> {
             FloatingInfoCard(
               distance: _distance,
               duration: _duration,
-              isVisible: _isInfoVisible, // Toggle visibility
+              isVisible: _isInfoVisible,
             ),
         ],
       ),
