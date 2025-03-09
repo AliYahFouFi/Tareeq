@@ -53,6 +53,8 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                   var route = busRoutes[index];
                   return GestureDetector(
                     onTap: () async {
+                      // close the bottom sheet
+                      Navigator.pop(context);
                       String routeId = route['route_id'].toString();
                       //this changes the value in the provider to the stops of the selected route
                       context.read<BusStopsProvider>().setBusStops(
