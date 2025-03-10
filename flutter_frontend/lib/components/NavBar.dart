@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/RoutesList.dart';
+import 'package:flutter_frontend/components/login.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -44,7 +45,16 @@ class _NavBarState extends State<NavBar> {
           text: 'Routes',
           onPressed: () => showBusRoutesBottomSheet(context),
         ),
-        GButton(icon: Icons.settings, text: 'Settings'),
+        GButton(
+          icon: Icons.settings,
+          text: 'Settings',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoginScreen()),
+            );
+          },
+        ),
       ],
     );
   }
