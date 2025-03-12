@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/pages/HomePage.dart';
 import '../services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,9 +9,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
 
   bool isLoginMode = true;  // A flag to toggle between Login and Register
 
@@ -33,8 +34,11 @@ class _LoginScreenState extends State<LoginScreen> {
       await Future.delayed(Duration(seconds: 2));
 
       // Navigate to Home Screen and close the login screen
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => HomePage()), 
+      (route) => false,
+    );  
+  } else {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Login failed! Please check your credentials."),
@@ -46,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // Register function
   void register() async {
     // Here you can add the register API call (assuming it's in ApiService)
-    bool isRegistered = await ApiService.register(emailController.text, passwordController.text);
+    bool isRegistered = await ApiService.register(nameController.text, emailController.text, passwordController.text);
 
     if (isRegistered) {
       // Show success message
@@ -78,6 +82,11 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
+            if (!isLoginMode) TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: "Name"),
+              obscureText: true,
+            ),
             TextField(
               controller: emailController,
               decoration: InputDecoration(labelText: "Email"),
