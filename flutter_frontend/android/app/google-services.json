@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "611296632544",
+    "project_id": "tareeq-15b48",
+    "storage_bucket": "tareeq-15b48.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611296632544:android:c190a71d09fd24313b7a85",
+        "android_client_info": {
+          "package_name": "com.example.flutter_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD738XeJnenveu7twqG7kotGVtmz_CR9ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
