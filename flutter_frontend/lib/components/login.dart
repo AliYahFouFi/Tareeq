@@ -13,33 +13,46 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  bool isLoginMode = true;  // A flag to toggle between Login and Register
+  bool isLoginMode = true;
+  bool isLoading = true;
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkIfLoggedIn();
+  }
+
+  // Check if user is already logged in
+  void checkIfLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    setState(() {
+      isLoggedIn = token != null;
+      isLoading = false;
+    });
+  }
 
   // Login function
   void login() async {
     String? token = await ApiService.login(emailController.text, passwordController.text);
 
     if (token != null) {
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Login successful!"),
         backgroundColor: Colors.green,
       ));
 
-      // Save token for future requests
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
 
-      // Delay to ensure snack bar shows before navigating
       await Future.delayed(Duration(seconds: 2));
 
-      // Navigate to Home Screen and close the login screen
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => HomePage()), 
-      (route) => false,
-    );  
-  } else {
-      // Show error message
+      setState(() {
+        isLoggedIn = true;
+      });
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Login failed! Please check your credentials."),
         backgroundColor: Colors.red,
@@ -49,24 +62,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Register function
   void register() async {
-    // Here you can add the register API call (assuming it's in ApiService)
     bool isRegistered = await ApiService.register(nameController.text, emailController.text, passwordController.text);
 
     if (isRegistered) {
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Registration successful!"),
         backgroundColor: Colors.green,
       ));
 
-      // Delay to ensure snack bar shows before navigating to Login screen
       await Future.delayed(Duration(seconds: 2));
 
       setState(() {
-        isLoginMode = true;  // Switch to login mode after successful registration
+        isLoginMode = true;
       });
     } else {
-      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Registration failed! Please check your details."),
         backgroundColor: Colors.red,
@@ -74,42 +83,90 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Logout function
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Logged out successfully!"),
+      backgroundColor: Colors.blue,
+    ));
+
+    await Future.delayed(Duration(seconds: 2));
+
+    setState(() {
+      isLoggedIn = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()), 
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: Text(isLoginMode ? "Login" : "Register")),
+      appBar: AppBar(title: Text("Authentication")),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (!isLoginMode) TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: "Name"),
-              obscureText: true,
-            ),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: "Email"),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
-            ElevatedButton(
-              onPressed: isLoginMode ? login : register,
-              child: Text(isLoginMode ? "Login" : "Register"),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  isLoginMode = !isLoginMode;  // Toggle between Login and Register
-                });
-              },
-              child: Text(isLoginMode ? "Don't have an account? Register here" : "Already have an account? Login here"),
-            ),
-          ],
-        ),
+        child: isLoggedIn
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("You are already logged in!", 
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      },
+                      child: Text("Go to Home"),
+                    ),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: logout,
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: Text("Logout"),
+                    ),
+                  ],
+                ),
+              )
+            : Column(
+                children: [
+                  if (!isLoginMode) 
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(labelText: "Name"),
+                    ),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(labelText: "Email"),
+                  ),
+                  TextField(
+                    controller: passwordController,
+                    decoration: InputDecoration(labelText: "Password"),
+                    obscureText: true,
+                  ),
+                  ElevatedButton(
+                    onPressed: isLoginMode ? login : register,
+                    child: Text(isLoginMode ? "Login" : "Register"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        isLoginMode = !isLoginMode;
+                      });
+                    },
+                    child: Text(isLoginMode ? "Don't have an account? Register here" : "Already have an account? Login here"),
+                  ),
+                ],
+              ),
       ),
     );
   }
