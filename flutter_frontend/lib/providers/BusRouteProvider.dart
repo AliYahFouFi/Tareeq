@@ -16,25 +16,27 @@ class BusRouteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> GetDistanceAndDuration(
-    double StartLat,
-    double StartLon,
-    double EndLat,
-    double EndLon,
+  Future<Map<String, String>> GetDistanceAndDuration(
+    double startLat,
+    double startLon,
+    double endLat,
+    double endLon,
     String mode,
   ) async {
-    var data = await getDirections(StartLat, StartLon, EndLat, EndLon, mode);
+    var data = await getDirections(startLat, startLon, endLat, endLon, mode);
+    this.distance = data['routes'][0]['legs'][0]['distance']['text'];
+    this.duration = data['routes'][0]['legs'][0]['duration']['text'];
+    String distance = data['routes'][0]['legs'][0]['distance']['text'];
+    String duration = data['routes'][0]['legs'][0]['duration']['text'];
 
-    distance = data['routes'][0]['legs'][0]['distance']['text'];
-    duration = data['routes'][0]['legs'][0]['duration']['text'];
-
-    notifyListeners(); // Notify UI to update
+    notifyListeners();
+    return {'distance': distance, 'duration': duration};
   }
 
   Future<void> updateRoute(LatLng currentPosition, LatLng destination) async {
     // Update only if moved more than 20 meters
     if (_lastUpdatedPosition == null ||
-        _calculateDistance(_lastUpdatedPosition!, currentPosition) > 20) {
+        calculateDistance(_lastUpdatedPosition!, currentPosition) > 20) {
       _lastUpdatedPosition = currentPosition;
 
       // Update the polyline
@@ -56,7 +58,7 @@ class BusRouteProvider extends ChangeNotifier {
     }
   }
 
-  double _calculateDistance(LatLng start, LatLng end) {
+  double calculateDistance(LatLng start, LatLng end) {
     const double earthRadius = 6371000; // in meters
     double dLat = (end.latitude - start.latitude) * (pi / 180);
     double dLon = (end.longitude - start.longitude) * (pi / 180);

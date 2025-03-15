@@ -54,7 +54,7 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                   return GestureDetector(
                     onTap: () async {
                       // close the bottom sheet
-                      Navigator.pop(context);
+
                       String routeId = route['route_id'].toString();
                       //this changes the value in the provider to the stops of the selected route
                       context.read<BusStopsProvider>().setBusStops(
@@ -64,6 +64,7 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                           await generatePolylineForOneRoute(routeId);
                       context.read<BusRouteProvider>().polylines =
                           polylineForOneRoute;
+
                       print(
                         "THIS FUNCTION IS BUS DETAILS WORKING SOOIHUJIASFGHUASDF ",
                       );

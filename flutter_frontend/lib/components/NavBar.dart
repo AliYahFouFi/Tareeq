@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/RoutesList.dart';
 import 'package:flutter_frontend/components/login.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
+import 'package:flutter_frontend/pages/BusDetailsPage.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -54,6 +55,17 @@ class _NavBarState extends State<NavBar> {
               MaterialPageRoute(builder: (context) => LoginScreen()),
             );
           },
+        ),
+        GButton(
+          icon: Icons.person,
+          text: 'Profile',
+          onPressed:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BusDetailsPage(busId: '1'),
+                ),
+              ),
         ),
       ],
     );

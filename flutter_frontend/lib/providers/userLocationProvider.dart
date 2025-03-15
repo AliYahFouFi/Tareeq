@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -54,7 +53,7 @@ class UserLocationProvider extends ChangeNotifier {
 
         // Update only if moved at least 20 meters
         if (_lastUpdatedPosition == null ||
-            _calculateDistance(_lastUpdatedPosition!, newPosition) > 20) {
+            calculateDistance(_lastUpdatedPosition!, newPosition) > 20) {
           _currentPosition = newPosition;
           _lastUpdatedPosition = newPosition; // Save last updated position
           notifyListeners();
@@ -63,7 +62,7 @@ class UserLocationProvider extends ChangeNotifier {
     });
   }
 
-  double _calculateDistance(LatLng start, LatLng end) {
+  double calculateDistance(LatLng start, LatLng end) {
     const double earthRadius = 6371000; // in meters
     double dLat = (end.latitude - start.latitude) * (pi / 180);
     double dLon = (end.longitude - start.longitude) * (pi / 180);
@@ -76,5 +75,10 @@ class UserLocationProvider extends ChangeNotifier {
             sin(dLon / 2);
 
     return earthRadius * 2 * atan2(sqrt(a), sqrt(1 - a));
+  }
+
+  void setInfoVisible(bool value) {
+    isInfoVisible = value;
+    notifyListeners();
   }
 }

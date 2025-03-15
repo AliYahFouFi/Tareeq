@@ -1,6 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/firebase_options.dart';
+import 'package:flutter_frontend/pages/BusDetailsPage.dart';
+import 'package:flutter_frontend/pages/BusPage.dart';
+import 'package:flutter_frontend/providers/BusDriverProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
@@ -28,11 +31,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => BusStopsProvider()),
         ChangeNotifierProvider(create: (context) => BusRouteProvider()),
         ChangeNotifierProvider(create: (context) => UserLocationProvider()),
+        ChangeNotifierProvider(
+          create: (context) => BusDriverProvider(busId: '1'),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Tareeq',
         home: HomePage(),
+        //BusDetailsPage(busId: '1'),
       ),
     );
   }
