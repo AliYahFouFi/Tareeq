@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
@@ -8,32 +10,34 @@ import 'package:provider/provider.dart';
 
 class DrawRouteButton extends StatelessWidget {
   final BusStop stop;
-  final bool setInfoVisible;
-  final LatLng currentPosition; // Ensure you import your Position model
+  final LatLng currentPosition;
 
   const DrawRouteButton({
     Key? key,
     required this.stop,
-    required this.setInfoVisible,
     required this.currentPosition,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.alt_route, size: 20, color: Colors.white),
+      label: const Text('SHOW ROUTE'),
+      onPressed: () async {
         context.read<BusRouteProvider>().polylines = await drawRoute(
           endLat: stop.latitude,
           endLon: stop.longitude,
           currentPosition: currentPosition,
         );
+
         await context.read<BusRouteProvider>().GetDistanceAndDuration(
-          currentPosition!.latitude,
-          currentPosition!.longitude,
+          currentPosition.latitude,
+          currentPosition.longitude,
           stop.latitude,
           stop.longitude,
           'walking',
         );
+
         final userLocationProvider = context.read<UserLocationProvider>();
         final busRouteProvider = context.read<BusRouteProvider>();
 
@@ -44,7 +48,6 @@ class DrawRouteButton extends StatelessWidget {
           LatLng(stop.latitude, stop.longitude),
         );
 
-        // Listen for location changes and update route dynamically
         userLocationProvider.addListener(() {
           if (userLocationProvider.currentPosition != null) {
             busRouteProvider.updateRoute(
@@ -54,18 +57,15 @@ class DrawRouteButton extends StatelessWidget {
           }
         });
 
-        // setInfoVisible();
+        context.read<UserLocationProvider>().setInfoVisible(true);
       },
-      //change this to changer the style
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.deepPurple,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text('Draw Route', style: TextStyle(color: Colors.white)),
-        ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 2,
+        shadowColor: Colors.deepPurple.withOpacity(0.3),
       ),
     );
   }

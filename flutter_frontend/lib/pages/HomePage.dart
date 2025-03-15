@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/components/bus_map.dart';
+import 'package:flutter_frontend/components/bus_marker.dart';
 import 'package:flutter_frontend/components/drawRouteBtn.dart';
 import 'package:flutter_frontend/components/floatingInfoCard.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
+import 'package:flutter_frontend/providers/BusDriverProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
@@ -46,77 +48,6 @@ class _HomePageState extends State<HomePage> {
     await context.read<UserLocationProvider>().initializeLocation();
   }
 
-  // Convert bus stops to Google Map markers
-  Set<Marker> getBusStopMarkers() {
-    BitmapDescriptor icon = context.watch<BusStopsProvider>().busStopIcon;
-    return _busStops.map((stop) {
-      return Marker(
-        markerId: MarkerId(stop.id.toString()),
-        position: LatLng(stop.latitude, stop.longitude),
-        infoWindow: InfoWindow(title: stop.name),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        onTap: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      height: 250,
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          Text(stop.name, style: TextStyle(fontSize: 24)),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Latitude: ${stop.latitude}'),
-                                SizedBox(width: 20),
-                                Text('Longitude: ${stop.longitude}'),
-                              ],
-                            ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Distance: $_distance'),
-                                SizedBox(width: 20),
-                                Text('Duration: $_duration'),
-                              ],
-                            ),
-                          ),
-
-                          DrawRouteButton(
-                            stop: stop,
-                            currentPosition: _currentPosition!,
-                            setInfoVisible:
-                                context
-                                    .read<UserLocationProvider>()
-                                    .isInfoVisible = true,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      );
-    }).toSet();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,7 +63,14 @@ class _HomePageState extends State<HomePage> {
             child: BusMap(
               currentPosition: _currentPosition,
               busStops: _busStops,
-              getBusStopMarkers: getBusStopMarkers,
+              getBusStopMarkers:
+                  () => getBusStopMarkers(
+                    busStops: _busStops,
+                    currentPosition: _currentPosition!,
+                    distance: _distance,
+                    duration: _duration,
+                    context: context,
+                  ),
               onMapCreated: (GoogleMapController controller) {
                 _mapController = controller;
               },
@@ -152,11 +90,13 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavBar(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.location_searching),
-        onPressed: () async {
-          context.read<BusRouteProvider>().polylines =
-              await initializeAllPolylines();
-          context.read<BusStopsProvider>().loadAllBusStops();
-        },
+        onPressed:
+            () => context.read<BusDriverProvider>().startLocationUpdates(),
+        // onPressed: () async {
+        //   context.read<BusRouteProvider>().polylines =
+        //       await initializeAllPolylines();
+        //   context.read<BusStopsProvider>().loadAllBusStops();
+        // },
       ),
     );
   }
