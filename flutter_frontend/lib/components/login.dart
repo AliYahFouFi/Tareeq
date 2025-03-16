@@ -60,28 +60,79 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Register function
-  void register() async {
-    bool isRegistered = await ApiService.register(nameController.text, emailController.text, passwordController.text);
+bool isValidName(String name) {
+  final nameRegex = RegExp(r"^[a-zA-Z\s]{2,}$");
+  return nameRegex.hasMatch(name);
+}
 
-    if (isRegistered) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Registration successful!"),
-        backgroundColor: Colors.green,
-      ));
+bool isValidEmail(String email) {
+  final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+  return emailRegex.hasMatch(email);
+}
 
-      await Future.delayed(Duration(seconds: 2));
+bool isValidPassword(String password) {
+  final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+  return passwordRegex.hasMatch(password);
+}
 
-      setState(() {
-        isLoginMode = true;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Registration failed! Please check your details."),
-        backgroundColor: Colors.red,
-      ));
-    }
+void register() async {
+  String name = nameController.text.trim();
+  String email = emailController.text.trim();
+  String password = passwordController.text;
+
+  if (!isValidName(name)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Name must contain only letters and be at least 2 characters long!"), 
+      backgroundColor: Colors.red),
+    );
+    return;
   }
+
+  if (name.isEmpty || email.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("All fields are required!"), backgroundColor: Colors.red),
+    );
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Invalid email format!"), backgroundColor: Colors.red),
+    );
+    return;
+  }
+
+  if (!isValidPassword(password)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Password must be at least 8 characters, include an uppercase letter, a number, and a special character."), 
+      backgroundColor: Colors.red),
+    );
+    return;
+  }
+
+  // Show loading indicator
+  setState(() => isLoading = true);
+
+  bool isRegistered = await ApiService.register(name, email, password);
+
+  setState(() => isLoading = false);
+
+  if (isRegistered) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Registration successful!"), backgroundColor: Colors.green),
+    );
+
+    await Future.delayed(Duration(seconds: 2));
+
+    setState(() {
+      isLoginMode = true;
+    });
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Registration failed! Please check your details."), backgroundColor: Colors.red),
+    );
+  }
+}
 
   // Logout function
   void logout() async {
