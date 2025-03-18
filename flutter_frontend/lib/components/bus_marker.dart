@@ -10,7 +10,6 @@ import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import '../util/diractions_service.dart';
 
 Set<Marker> getBusStopMarkers({
   required BuildContext context,
@@ -71,7 +70,6 @@ class _BusStopInfoSheet extends StatelessWidget {
                 children: [
                   DrawRouteButton(
                     stop: stop,
-                    // setInfoVisible() => context.read<UserLocationProvider>().setInfoVisible(true),
                     currentPosition:
                         context.watch<UserLocationProvider>().currentPosition!,
                   ),
@@ -109,61 +107,6 @@ class _BusStopInfoSheet extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  // Widget _buildLocationInfo(BuildContext context) {
-  //   return Card(
-  //     elevation: 2,
-  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(16),
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //         children: [
-  //           _buildCoordinateDisplay(
-  //             'Latitude',
-  //             stop.latitude.toStringAsFixed(5),
-  //             Icons.explore,
-  //             Colors.orange,
-  //           ),
-  //           Container(height: 40, width: 1, color: Colors.grey[300]),
-  //           _buildCoordinateDisplay(
-  //             'Longitude',
-  //             stop.longitude.toStringAsFixed(5),
-  //             Icons.explore,
-  //             Colors.green,
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Widget _buildCoordinateDisplay(
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 22),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ],
     );
   }
 
@@ -211,7 +154,23 @@ class _BusStopInfoSheet extends StatelessWidget {
           );
         }
 
-        final buses = busesSnapshot.data!.docs;
+        // Filter buses by routename
+        final buses =
+            busesSnapshot.data!.docs.where((bus) {
+              final busData = bus.data() as Map<String, dynamic>;
+              final String? routeName =
+                  busData['routeName']; // Ensure it's a String
+
+              return routeName != null && routeName.contains(stop.routeName);
+            }).toList();
+
+        if (buses.isEmpty) {
+          return _buildInfoCard(
+            icon: Icons.error_outline,
+            color: Colors.orange,
+            text: 'No buses for this route',
+          );
+        }
 
         return ListView.separated(
           shrinkWrap: true,
