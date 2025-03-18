@@ -3,6 +3,7 @@ import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/components/bus_map.dart';
 import 'package:flutter_frontend/components/bus_marker.dart';
 import 'package:flutter_frontend/components/drawRouteBtn.dart';
+import 'package:flutter_frontend/components/drawer.dart';
 import 'package:flutter_frontend/components/floatingInfoCard.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/providers/BusDriverProvider.dart';
@@ -57,7 +58,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
-
+      drawer: AppDrawer(),
       body: Stack(
         children: [
           // Map Section (This is at the bottom)
@@ -95,9 +96,9 @@ class _HomePageState extends State<HomePage> {
         // onPressed:
         // () => context.read<BusDriverProvider>().startLocationUpdates();
         onPressed: () async {
-          context.read<BusRouteProvider>().polylines =
-              await initializeAllPolylines();
-          context.read<BusStopsProvider>().loadAllBusStops();
+          // context.read<BusRouteProvider>().polylines =
+          //     await initializeAllPolylines();
+          // context.read<BusStopsProvider>().loadAllBusStops();
         },
       ),
     );
