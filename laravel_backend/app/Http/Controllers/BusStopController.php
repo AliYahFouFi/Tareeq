@@ -12,9 +12,22 @@ class BusStopController extends Controller
     //get all bus stops
     public function getAllStops()
     {
-        $bus_stops = BusStop::all();
+        $bus_stops = BusStop::with(['routes'])->get();
+
+        $bus_stops = $bus_stops->map(function ($stop) {
+            return [
+                'id' => $stop->id,
+                'name' => $stop->name,
+                'address' => $stop->address,
+                'latitude' => $stop->latitude,
+                'longitude' => $stop->longitude,
+                'route' => $stop->routess->first()?->name ?? 'Unknown', // Get the first route name
+            ];
+        });
+
         return response()->json($bus_stops);
     }
+
 
     public function create()
     {

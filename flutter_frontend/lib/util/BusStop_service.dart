@@ -11,6 +11,7 @@ class BusStopService {
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
+        print(response.body);
         return data.map((stop) => BusStop.fromJson(stop)).toList();
       } else {
         throw Exception('Failed to load bus stops');
@@ -29,16 +30,20 @@ class BusStopService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        List<dynamic> stops = data['stops'];
+        List<dynamic> stops = data['stops'] ?? [];
+
+        // Extract route name from the main JSON object
+        String routeName = data['route_name'] ?? 'Unknown';
 
         List<BusStop> busStops =
             stops.map((stop) {
               return BusStop(
-                id: stop['id'],
-                name: stop['name'],
-                address: stop['address'],
-                latitude: double.parse(stop['latitude']),
-                longitude: double.parse(stop['longitude']),
+                id: stop['id'] ?? 0,
+                name: stop['name'] ?? 'Unknown',
+                address: stop['address'] ?? 'Unknown',
+                latitude: double.tryParse(stop['latitude'].toString()) ?? 0.0,
+                longitude: double.tryParse(stop['longitude'].toString()) ?? 0.0,
+                routeName: routeName, // Use extracted routeName
               );
             }).toList();
 

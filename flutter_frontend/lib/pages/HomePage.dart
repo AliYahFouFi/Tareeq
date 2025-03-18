@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // in didChangeDependencies we get the busStops from the provider or any other
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _busStops = context.watch<BusStopsProvider>().busStops;
@@ -56,6 +57,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
+
       body: Stack(
         children: [
           // Map Section (This is at the bottom)
@@ -90,13 +92,13 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavBar(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.location_searching),
-        onPressed:
-            () => context.read<BusDriverProvider>().startLocationUpdates(),
-        // onPressed: () async {
-        //   context.read<BusRouteProvider>().polylines =
-        //       await initializeAllPolylines();
-        //   context.read<BusStopsProvider>().loadAllBusStops();
-        // },
+        // onPressed:
+        // () => context.read<BusDriverProvider>().startLocationUpdates();
+        onPressed: () async {
+          context.read<BusRouteProvider>().polylines =
+              await initializeAllPolylines();
+          context.read<BusStopsProvider>().loadAllBusStops();
+        },
       ),
     );
   }

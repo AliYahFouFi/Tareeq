@@ -21,4 +21,8 @@ class BusStop extends Model
         return $this->belongsToMany(BusRoute::class, 'bus_route_stop')
             ->withPivot('order');
     }
+    public function routess()
+    {
+        return $this->belongsToMany(BusRoute::class, 'bus_route_stop');
+    }
 }

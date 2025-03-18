@@ -48,24 +48,13 @@ class _NavBarState extends State<NavBar> {
         ),
         GButton(
           icon: Icons.settings,
-          text: 'Settings',
+          text: 'person',
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => LoginScreen()),
             );
           },
-        ),
-        GButton(
-          icon: Icons.person,
-          text: 'Profile',
-          onPressed:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BusDetailsPage(busId: '1'),
-                ),
-              ),
         ),
       ],
     );
