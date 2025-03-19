@@ -11,19 +11,28 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
+            'password' => 'required|min:8',
+            'role' => 'required|in:user,driver', // Must be either "user" or "driver"
         ]);
-
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role, // Assign role
         ]);
-
-        return response()->json(['token' => $user->createToken('api-token')->plainTextToken]);
+    
+        $token = $user->createToken('auth_token')->plainTextToken;
+    
+        return response()->json([
+            'token' => $token,
+            'role' => $user->role,
+            'message' => 'Registration successful!',
+        ]);
     }
+    
 
     public function login(Request $request)
     {
@@ -31,14 +40,20 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
+    
         $user = User::where('email', $request->email)->first();
-
+    
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages(['email' => ['Invalid credentials']]);
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
-
-        return response()->json(['token' => $user->createToken('api-token')->plainTextToken]);
+    
+        $token = $user->createToken('auth_token')->plainTextToken;
+    
+        return response()->json([
+            'token' => $token,
+            'role' => $user->role,  // Return role to Flutter
+            'message' => 'Login successful!',
+        ]);
     }
     
     public function logout(Request $request)
