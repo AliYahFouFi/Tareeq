@@ -4,11 +4,11 @@ import 'package:http/http.dart' as http;
 class ApiService {
   static const String baseUrl = "http://10.0.2.2:8000/api";
 
-static Future<bool> register(String name, String email, String password) async {
+static Future<bool> register(String name, String email, String password, String role) async {
   try {
     final response = await http.post(
       Uri.parse('$baseUrl/register'),
-      body: {'name': name, 'email': email, 'password': password},
+      body: {'name': name, 'email': email, 'password': password, 'role': role},
     );
     
    if (response.statusCode == 200 || response.statusCode == 201){
