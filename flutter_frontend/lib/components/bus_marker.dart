@@ -154,14 +154,19 @@ class _BusStopInfoSheet extends StatelessWidget {
           );
         }
 
-        // Filter buses by routename
+        // Filter buses by routename and if it isactive
+
         final buses =
             busesSnapshot.data!.docs.where((bus) {
               final busData = bus.data() as Map<String, dynamic>;
-              final String? routeName =
-                  busData['routeName']; // Ensure it's a String
 
-              return routeName != null && routeName.contains(stop.routeName);
+              final String? routeName = busData['routeName'];
+              final bool isActive =
+                  busData['active'] as bool? ?? false; // Check active status
+
+              return isActive &&
+                  routeName != null &&
+                  routeName.contains(stop.routeName);
             }).toList();
 
         if (buses.isEmpty) {
