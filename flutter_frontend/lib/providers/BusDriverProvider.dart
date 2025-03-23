@@ -94,4 +94,29 @@ class BusDriverProvider extends UserLocationProvider {
       return null;
     }
   }
+
+  Future<bool> isBusActive(String busId) async {
+    try {
+      final doc = await _firestore.collection('busses').doc(busId).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        return data['active'] as bool? ?? false; // Handle null case
+      }
+      return false;
+    } catch (e) {
+      print("❌ Error checking bus status: $e");
+      return false;
+    }
+  }
+
+  Future<void> updateBusStatus(String busId, bool isActive) async {
+    try {
+      await busses.doc(busId).update({
+        'active': isActive,
+      }); // Update active status
+      print("✅ Bus status updated to $isActive");
+    } catch (e) {
+      print("❌ Error updating bus status: $e");
+    }
+  }
 }

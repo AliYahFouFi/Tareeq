@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/NavBar.dart';
 import 'package:flutter_frontend/components/bus_map.dart';
 import 'package:flutter_frontend/components/bus_marker.dart';
-import 'package:flutter_frontend/components/drawRouteBtn.dart';
 import 'package:flutter_frontend/components/drawer.dart';
 import 'package:flutter_frontend/components/floatingInfoCard.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
@@ -11,9 +10,7 @@ import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:provider/provider.dart';
-import '../components/infoTile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -93,20 +90,27 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavBar(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.location_searching),
+        //to start the trip
         // onPressed:
-        // () => context.read<BusDriverProvider>().startLocationUpdates();
+        //     () => context.read<BusDriverProvider>().startLocationUpdates(),
         onPressed: () async {
           // context.read<BusRouteProvider>().polylines =
           //     await initializeAllPolylines();
           // context.read<BusStopsProvider>().loadAllBusStops();
+
+          //to check if bus is active
+          bool isActive = await context.read<BusDriverProvider>().isBusActive(
+            'bus_123',
+          );
+          //to change the active state
+          context.read<BusDriverProvider>().updateBusStatus(
+            'bus_123',
+            !isActive,
+          );
+          print("Bus Active: $isActive");
+          print("BUSACTIVEIS THEBHJKADFJKBADGBHJDJA");
         },
       ),
     );
-  }
-
-  setInfoVisibility() {
-    setState(() {
-      _isInfoVisible = true;
-    });
   }
 }

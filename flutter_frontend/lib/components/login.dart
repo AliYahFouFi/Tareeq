@@ -115,7 +115,7 @@ void register() async {
   // Show loading indicator
   setState(() => isLoading = true);
 
-  bool isRegistered = await ApiService.register(name, email, password);
+  bool isRegistered = await ApiService.register(name, email, password, role);
 
   setState(() => isLoading = false);
 
@@ -208,6 +208,22 @@ void register() async {
                     controller: passwordController,
                     decoration: InputDecoration(labelText: "Password"),
                     obscureText: true,
+                  ),
+                  if (!isLoginMode)
+                  DropdownButtonFormField<String>(
+                    value: selectedRole,
+                    items: roles.map((String role) {
+                      return DropdownMenuItem<String>(
+                        value: role,
+                        child: Text(role),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedRole = newValue!;
+                      });
+                    },
+                    decoration: InputDecoration(labelText: "Select Role"),
                   ),
                   ElevatedButton(
                     onPressed: isLoginMode ? login : register,
