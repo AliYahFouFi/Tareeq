@@ -25,20 +25,25 @@ static Future<bool> register(String name, String email, String password, String 
 }
 
   // Login
-  static Future<String?> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/login'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"email": email, "password": password}),
-    );
+static Future<Map<String, dynamic>?> login(String email, String password) async {
+  final response = await http.post(
+    Uri.parse("$baseUrl/login"),
+    body: {
+      "email": email,
+      "password": password,
+    },
+  );
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      return data["token"];
-    } else {
-      return null;
-    }
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return {
+      "token": data["token"], 
+      "role": data["role"], // Make sure the backend sends 'role'
+    };
+  } else {
+    return null;
   }
+}
 
   // Logout
   static Future<http.Response> logout(String token) async {
