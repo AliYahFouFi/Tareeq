@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/pages/DriverPage.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
 import '../services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -81,13 +82,11 @@ void register() async {
   String name = nameController.text.trim();
   String email = emailController.text.trim();
   String password = passwordController.text;
-  String role = selectedRole; // Assume this is set from a dropdown or radio button
-
+  String role = selectedRole; // Get selected role
 
   if (!isValidName(name)) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Name must contain only letters and be at least 2 characters long!"), 
-      backgroundColor: Colors.red),
+      SnackBar(content: Text("Name must contain only letters and be at least 2 characters long!"), backgroundColor: Colors.red),
     );
     return;
   }
@@ -108,8 +107,7 @@ void register() async {
 
   if (!isValidPassword(password)) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Password must be at least 8 characters, include an uppercase letter, a number, and a special character."), 
-      backgroundColor: Colors.red),
+      SnackBar(content: Text("Password must be at least 8 characters, include an uppercase letter, a number, and a special character."), backgroundColor: Colors.red),
     );
     return;
   }
@@ -128,15 +126,18 @@ void register() async {
 
     await Future.delayed(Duration(seconds: 2));
 
-    setState(() {
-      isLoginMode = true;
-    });
+    if (role == 'user') {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+    } else if (role == 'driver') {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => DriverPage())); // Ensure DriverPage is imported
+    }
   } else {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Registration failed! Please check your details."), backgroundColor: Colors.red),
+      SnackBar(content: Text("Registration failed! Please check your details."), backgroundColor: const Color.fromARGB(255, 255, 150, 246)),
     );
   }
 }
+
 
   // Logout function
   void logout() async {
@@ -186,7 +187,7 @@ void register() async {
                     SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: logout,
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 251, 132, 255)),
                       child: Text("Logout"),
                     ),
                   ],
