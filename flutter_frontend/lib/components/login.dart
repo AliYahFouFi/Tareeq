@@ -38,30 +38,38 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Login function
-  void login() async {
-    String? token = await ApiService.login(emailController.text, passwordController.text);
+void login() async {
+  Map<String, dynamic>? response = await ApiService.login(emailController.text, passwordController.text);
 
-    if (token != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Login successful!"),
-        backgroundColor: Colors.green,
-      ));
+  if (response != null && response.containsKey('token') && response.containsKey('role')) {
+    String token = response['token'];
+    String role = response['role']; // Retrieve user role from API response
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', token);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Login successful!"),
+      backgroundColor: Colors.green,
+    ));
 
-      await Future.delayed(Duration(seconds: 2));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+    await prefs.setString('role', role); // Store role in preferences
 
-      setState(() {
-        isLoggedIn = true;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Login failed! Please check your credentials."),
-        backgroundColor: Colors.red,
-      ));
+    await Future.delayed(Duration(seconds: 2));
+
+    // Navigate based on user role
+    if (role == 'user') {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+    } else if (role == 'driver') {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => DriverPage()));
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Login failed! Please check your credentials."),
+      backgroundColor: Colors.red,
+    ));
   }
+}
+
 
 bool isValidName(String name) {
   final nameRegex = RegExp(r"^[a-zA-Z\s]{2,}$");
