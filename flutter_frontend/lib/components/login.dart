@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/models/User_model.dart';
 import 'package:flutter_frontend/pages/DriverPage.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
 import '../services/api_service.dart';
@@ -17,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoginMode = true;
   bool isLoading = true;
   bool isLoggedIn = false;
+  //selected role change when login
   String selectedRole = 'user'; // Default role
   List<String> roles = ['user', 'driver']; // Example roles
 
@@ -38,124 +42,186 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Login function
-void login() async {
-  Map<String, dynamic>? response = await ApiService.login(emailController.text, passwordController.text);
+  void login() async {
+    User? response = await ApiService.login(
+      emailController.text,
+      passwordController.text,
+    );
 
-  if (response != null && response.containsKey('token') && response.containsKey('role')) {
-    String token = response['token'];
-    String role = response['role']; // Retrieve user role from API response
+    ///if we need to get data to use in shared perf we can here
+    if (response != null &&
+        response.token.isNotEmpty &&
+        response.role.isNotEmpty) {
+      String token = response.token;
+      String role = response.role; // Retrieve user role from API response
+      String id = response.id;
+      ScaffoldMessenger.of(context).showSnackBar(
+        //we should do this in its own file to be reused as needed
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Text(
+                "Login successful!",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: EdgeInsets.all(16),
+          duration: Duration(seconds: 2),
+        ),
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Login successful!"),
-      backgroundColor: Colors.green,
-    ));
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
+      await prefs.setString('role', role); // Store role in preferences
+      await prefs.setString('id', id);
+      await Future.delayed(Duration(seconds: 2));
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
-    await prefs.setString('role', role); // Store role in preferences
-
-    await Future.delayed(Duration(seconds: 2));
-
-    // Navigate based on user role
-    if (role == 'user') {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
-    } else if (role == 'driver') {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => DriverPage()));
+      // Navigate based on user role
+      if (role == 'user') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage(key: UniqueKey())),
+        );
+      } else if (role == 'driver') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage(key: UniqueKey())),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Login failed! Please check your credentials."),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Login failed! Please check your credentials."),
-      backgroundColor: Colors.red,
-    ));
-  }
-}
-
-
-bool isValidName(String name) {
-  final nameRegex = RegExp(r"^[a-zA-Z\s]{2,}$");
-  return nameRegex.hasMatch(name);
-}
-
-bool isValidEmail(String email) {
-  final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-  return emailRegex.hasMatch(email);
-}
-
-bool isValidPassword(String password) {
-  final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
-  return passwordRegex.hasMatch(password);
-}
-
-void register() async {
-  String name = nameController.text.trim();
-  String email = emailController.text.trim();
-  String password = passwordController.text;
-  String role = selectedRole; // Get selected role
-
-  if (!isValidName(name)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Name must contain only letters and be at least 2 characters long!"), backgroundColor: Colors.red),
-    );
-    return;
   }
 
-  if (name.isEmpty || email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("All fields are required!"), backgroundColor: Colors.red),
-    );
-    return;
+  bool isValidName(String name) {
+    final nameRegex = RegExp(r"^[a-zA-Z\s]{2,}$");
+    return nameRegex.hasMatch(name);
   }
 
-  if (!isValidEmail(email)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Invalid email format!"), backgroundColor: Colors.red),
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
-    return;
+    return emailRegex.hasMatch(email);
   }
 
-  if (!isValidPassword(password)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Password must be at least 8 characters, include an uppercase letter, a number, and a special character."), backgroundColor: Colors.red),
+  bool isValidPassword(String password) {
+    final passwordRegex = RegExp(
+      r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
     );
-    return;
+    return passwordRegex.hasMatch(password);
   }
 
-  // Show loading indicator
-  setState(() => isLoading = true);
+  void register() async {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text;
+    String role = selectedRole; // Get selected role
 
-  bool isRegistered = await ApiService.register(name, email, password, role);
-
-  setState(() => isLoading = false);
-
-  if (isRegistered) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Registration successful!"), backgroundColor: Colors.green),
-    );
-
-    await Future.delayed(Duration(seconds: 2));
-
-    if (role == 'user') {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
-    } else if (role == 'driver') {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => DriverPage())); // Ensure DriverPage is imported
+    if (!isValidName(name)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Name must contain only letters and be at least 2 characters long!",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Registration failed! Please check your details."), backgroundColor: const Color.fromARGB(255, 255, 150, 246)),
-    );
-  }
-}
 
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("All fields are required!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Invalid email format!"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Password must be at least 8 characters, include an uppercase letter, a number, and a special character.",
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    setState(() => isLoading = true);
+
+    bool isRegistered = await ApiService.register(name, email, password, role);
+
+    setState(() => isLoading = false);
+
+    if (isRegistered) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Registration successful!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      await Future.delayed(Duration(seconds: 2));
+
+      if (role == 'user') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage(key: UniqueKey())),
+        );
+      } else if (role == 'driver') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage(key: UniqueKey())),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Registration failed! Please check your details."),
+          backgroundColor: const Color.fromARGB(255, 255, 150, 246),
+        ),
+      );
+    }
+  }
 
   // Logout function
   void logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    await prefs.remove('role');
+    await prefs.remove('id');
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Logged out successfully!"),
-      backgroundColor: Colors.blue,
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Logged out successfully!"),
+        backgroundColor: Colors.blue,
+      ),
+    );
 
     await Future.delayed(Duration(seconds: 2));
 
@@ -167,86 +233,116 @@ void register() async {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()), 
-      );
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text("Authentication")),
+      appBar: AppBar(
+        title: Text("Authentication"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back), // Custom back icon
+          onPressed: () {
+            Navigator.pushReplacement(
+              // Replace current screen
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          },
+        ),
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: isLoggedIn
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child:
+            isLoggedIn
+                ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "You are already logged in!",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => HomePage(key: UniqueKey()),
+                            ),
+                          );
+                        },
+                        child: Text("Go to Home"),
+                      ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: logout,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            251,
+                            132,
+                            255,
+                          ),
+                        ),
+                        child: Text("Logout"),
+                      ),
+                    ],
+                  ),
+                )
+                : Column(
                   children: [
-                    Text("You are already logged in!", 
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => HomePage()),
-                        );
-                      },
-                      child: Text("Go to Home"),
+                    if (!isLoginMode)
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(labelText: "Name"),
+                      ),
+                    TextField(
+                      controller: emailController,
+                      decoration: InputDecoration(labelText: "Email"),
                     ),
-                    SizedBox(height: 10),
+                    TextField(
+                      controller: passwordController,
+                      decoration: InputDecoration(labelText: "Password"),
+                      obscureText: true,
+                    ),
+                    if (!isLoginMode)
+                      DropdownButtonFormField<String>(
+                        value: selectedRole,
+                        items:
+                            roles.map((String role) {
+                              return DropdownMenuItem<String>(
+                                value: role,
+                                child: Text(role),
+                              );
+                            }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedRole = newValue!;
+                          });
+                        },
+                        decoration: InputDecoration(labelText: "Select Role"),
+                      ),
                     ElevatedButton(
-                      onPressed: logout,
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 251, 132, 255)),
-                      child: Text("Logout"),
+                      onPressed: isLoginMode ? login : register,
+                      child: Text(isLoginMode ? "Login" : "Register"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          isLoginMode = !isLoginMode;
+                        });
+                      },
+                      child: Text(
+                        isLoginMode
+                            ? "Don't have an account? Register here"
+                            : "Already have an account? Login here",
+                      ),
                     ),
                   ],
                 ),
-              )
-            : Column(
-                children: [
-                  if (!isLoginMode) 
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(labelText: "Name"),
-                    ),
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(labelText: "Email"),
-                  ),
-                  TextField(
-                    controller: passwordController,
-                    decoration: InputDecoration(labelText: "Password"),
-                    obscureText: true,
-                  ),
-                  if (!isLoginMode)
-                  DropdownButtonFormField<String>(
-                    value: selectedRole,
-                    items: roles.map((String role) {
-                      return DropdownMenuItem<String>(
-                        value: role,
-                        child: Text(role),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedRole = newValue!;
-                      });
-                    },
-                    decoration: InputDecoration(labelText: "Select Role"),
-                  ),
-                  ElevatedButton(
-                    onPressed: isLoginMode ? login : register,
-                    child: Text(isLoginMode ? "Login" : "Register"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        isLoginMode = !isLoginMode;
-                      });
-                    },
-                    child: Text(isLoginMode ? "Don't have an account? Register here" : "Already have an account? Login here"),
-                  ),
-                ],
-              ),
       ),
     );
   }
