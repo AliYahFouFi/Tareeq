@@ -6,9 +6,8 @@ import '../services/fireBase_service.dart';
 
 class BusDriverProvider extends UserLocationProvider {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String busId;
-  bool isActive = false;
-  BusDriverProvider({required this.busId}) {
+
+  BusDriverProvider() {
     initializeLocation();
   }
   final Location _locationController = Location();
@@ -26,8 +25,8 @@ class BusDriverProvider extends UserLocationProvider {
   /// Firestore database when the bus has moved at least 20 meters. This method
   /// is called in the constructor of the class and should not be called
   /// manually.
-  void startLocationUpdates() {
-    this.isActive = true;
+  void startLocationUpdates(String busId) {
+    toggleBusStatus(busId);
     _locationController.onLocationChanged.listen((
       LocationData currentLocation,
     ) async {
@@ -40,20 +39,20 @@ class BusDriverProvider extends UserLocationProvider {
 
         // Update only if moved at least 200 meters
         if (_lastUpdatedPosition == null ||
-            calculateDistance(_lastUpdatedPosition!, newPosition) > 200) {
+            calculateDistance(_lastUpdatedPosition!, newPosition) > 20) {
           _currentPosition = newPosition;
           _lastUpdatedPosition = newPosition; // Save last updated position
           notifyListeners();
-          await _updateBusLocation(newPosition);
+          await _updateBusLocation(newPosition, busId);
         }
       }
     });
     notifyListeners();
   }
 
-  Future<void> _updateBusLocation(LatLng newPosition) async {
+  Future<void> _updateBusLocation(LatLng newPosition, String busId) async {
     try {
-      await _firestore.collection('busses').doc('1').update({
+      await _firestore.collection('busses').doc(busId).update({
         'latitude': newPosition.latitude,
         'longitude': newPosition.longitude,
         'last_updated': Timestamp.now(),
@@ -63,7 +62,7 @@ class BusDriverProvider extends UserLocationProvider {
     }
   }
 
-  Future<LatLng?> getBusLocation() async {
+  Future<LatLng?> getBusLocation(busId) async {
     try {
       DocumentSnapshot snapshot =
           await _firestore.collection('busses').doc(busId).get();
@@ -109,14 +108,27 @@ class BusDriverProvider extends UserLocationProvider {
     }
   }
 
-  Future<void> updateBusStatus(String busId, bool isActive) async {
+  Future<void> toggleBusStatus(String busId) async {
     try {
-      await busses.doc(busId).update({
-        'active': isActive,
-      }); // Update active status
-      print("✅ Bus status updated to $isActive");
+      // 1. Fetch the current bus document
+      final DocumentSnapshot busSnapshot = await busses.doc(busId).get();
+
+      if (busSnapshot.exists) {
+        // 2. Get the current 'active' status (default to false if not set)
+        final bool currentStatus = busSnapshot['active'] ?? false;
+
+        // 3. Toggle the value
+        final bool newStatus = !currentStatus;
+
+        // 4. Update Firestore
+        await busses.doc(busId).update({'active': newStatus});
+
+        print("✅ Bus status toggled to $newStatus");
+      } else {
+        print("❌ Bus document does not exist");
+      }
     } catch (e) {
-      print("❌ Error updating bus status: $e");
+      print("❌ Error toggling bus status: $e");
     }
   }
 }

@@ -31,15 +31,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => BusStopsProvider()),
         ChangeNotifierProvider(create: (context) => BusRouteProvider()),
         ChangeNotifierProvider(create: (context) => UserLocationProvider()),
-        ChangeNotifierProvider(
-          create: (context) => BusDriverProvider(busId: '1'),
-        ),
+        ChangeNotifierProvider(create: (context) => BusDriverProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Tareeq',
         home: HomePage(),
-        //BusDetailsPage(busId: '1'),
+        //BusPage(),
       ),
     );
   }

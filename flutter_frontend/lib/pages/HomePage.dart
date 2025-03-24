@@ -11,6 +11,7 @@ import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,9 +27,14 @@ class _HomePageState extends State<HomePage> {
   bool _isInfoVisible = false;
   String _distance = '';
   String _duration = '';
+  String selectedRole = ' ';
+  bool _isLoggedIn = false;
+  bool _isDriver = false;
+  String _busId = '';
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) => initializeMap());
   }
 
@@ -88,29 +94,50 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       bottomNavigationBar: NavBar(),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.location_searching),
-        //to start the trip
-        // onPressed:
-        //     () => context.read<BusDriverProvider>().startLocationUpdates(),
-        onPressed: () async {
-          // context.read<BusRouteProvider>().polylines =
-          //     await initializeAllPolylines();
-          // context.read<BusStopsProvider>().loadAllBusStops();
 
-          //to check if bus is active
-          bool isActive = await context.read<BusDriverProvider>().isBusActive(
-            'bus_123',
-          );
-          //to change the active state
-          context.read<BusDriverProvider>().updateBusStatus(
-            'bus_123',
-            !isActive,
-          );
-          print("Bus Active: $isActive");
-          print("BUSACTIVEIS THEBHJKADFJKBADGBHJDJA");
-        },
-      ),
+      floatingActionButton:
+          _isLoggedIn && _isDriver
+              ?
+              //if the role is driver show a button to make the bus active
+              FloatingActionButton.extended(
+                onPressed:
+                    () => context
+                        .read<BusDriverProvider>()
+                        .startLocationUpdates(_busId),
+                label: const Text(
+                  "Start Tracking",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                icon: const Icon(Icons.location_searching, size: 28),
+                backgroundColor:
+                    Colors.blueAccent, // Change this color as needed
+                foregroundColor: Colors.white,
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              )
+              : SizedBox(height: 0),
     );
+  }
+
+  _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final role = prefs.getString('role');
+    final id = prefs.getString('id');
+    if (token != null && role != null) {
+      setState(() {
+        _isLoggedIn = true;
+        _isDriver = role == 'driver';
+        _busId = id!;
+      });
+    } else {
+      setState(() {
+        _isLoggedIn = false;
+        _isDriver = false;
+        _busId = '';
+      });
+    }
   }
 }

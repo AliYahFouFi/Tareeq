@@ -208,19 +208,17 @@ class _BusStopInfoSheet extends StatelessWidget {
     String registeredNumber,
     LatLng busPosition,
   ) {
-    final isActive = context.watch<BusDriverProvider>().isActive;
+    //________________________________
 
     return FutureBuilder<Map<String, String>>(
-      future:
-          isActive
-              ? context.read<BusRouteProvider>().GetDistanceAndDuration(
-                busPosition.latitude,
-                busPosition.longitude,
-                stop.latitude,
-                stop.longitude,
-                'Driving',
-              )
-              : null,
+      future: context.read<BusRouteProvider>().GetDistanceAndDuration(
+        busPosition.latitude,
+        busPosition.longitude,
+        stop.latitude,
+        stop.longitude,
+        'Driving',
+      ),
+
       builder: (context, etaSnapshot) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -254,10 +252,10 @@ class _BusStopInfoSheet extends StatelessWidget {
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
-                if (isActive)
-                  _buildETAStatus(etaSnapshot)
-                else
-                  _buildInactiveStatus(),
+                // if (isActive)
+                _buildETAStatus(etaSnapshot),
+                //else
+                // _buildInactiveStatus(),
               ],
             ),
           ),
@@ -282,6 +280,7 @@ class _BusStopInfoSheet extends StatelessWidget {
     );
   }
 
+  //THIS NEED TO BE MODIFIED
   Widget _buildETAStatus(AsyncSnapshot<Map<String, String>> snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {
       return Row(
