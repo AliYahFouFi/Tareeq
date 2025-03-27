@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/User_model.dart';
 import 'package:flutter_frontend/pages/DriverPage.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
+import 'package:flutter_frontend/providers/BusDriverProvider.dart';
+import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -212,6 +214,9 @@ class _LoginScreenState extends State<LoginScreen> {
   // Logout function
   void logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    context.read<BusDriverProvider>().stopLocationUpdates(
+      prefs.getString('id')!,
+    );
     await prefs.remove('token');
     await prefs.remove('role');
     await prefs.remove('id');

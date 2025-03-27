@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,6 +12,7 @@ class BusDriverProvider extends UserLocationProvider {
   BusDriverProvider() {
     initializeLocation();
   }
+
   final Location _locationController = Location();
   LatLng? _currentPosition;
   bool _serviceEnabled = false;
@@ -19,15 +22,16 @@ class BusDriverProvider extends UserLocationProvider {
   final CollectionReference busses = FirebaseFirestore.instance.collection(
     'busses',
   );
-
+  StreamSubscription<LocationData>? _locationSubscription;
   @override
   /// Start listening to location changes and updates the bus location in the
   /// Firestore database when the bus has moved at least 20 meters. This method
   /// is called in the constructor of the class and should not be called
   /// manually.
   void startLocationUpdates(String busId) {
-    toggleBusStatus(busId);
-    _locationController.onLocationChanged.listen((
+    toggleBusStatus(busId, true);
+
+    _locationSubscription = _locationController.onLocationChanged.listen((
       LocationData currentLocation,
     ) async {
       if (currentLocation.latitude != null &&
@@ -37,7 +41,7 @@ class BusDriverProvider extends UserLocationProvider {
           currentLocation.longitude!,
         );
 
-        // Update only if moved at least 200 meters
+        // Update only if moved at least 20 meters
         if (_lastUpdatedPosition == null ||
             calculateDistance(_lastUpdatedPosition!, newPosition) > 20) {
           _currentPosition = newPosition;
@@ -47,6 +51,16 @@ class BusDriverProvider extends UserLocationProvider {
         }
       }
     });
+
+    notifyListeners();
+  }
+
+  void stopLocationUpdates(String busId) {
+    if (_locationSubscription != null) {
+      _locationSubscription!.cancel();
+      _locationSubscription = null;
+    }
+    toggleBusStatus(busId, false);
     notifyListeners();
   }
 
@@ -108,27 +122,31 @@ class BusDriverProvider extends UserLocationProvider {
     }
   }
 
-  Future<void> toggleBusStatus(String busId) async {
+  Future<void> toggleBusStatus(String busId, bool status) async {
     try {
-      // 1. Fetch the current bus document
-      final DocumentSnapshot busSnapshot = await busses.doc(busId).get();
+      await _firestore.collection('busses').doc(busId).update({
+        'active': status,
+      });
+      _isActive = status;
+      notifyListeners();
+    } catch (e) {
+      print("❌ Error updating bus status: $e");
+    }
+  }
 
-      if (busSnapshot.exists) {
-        // 2. Get the current 'active' status (default to false if not set)
-        final bool currentStatus = busSnapshot['active'] ?? false;
+  bool _isActive = false; // Track active status
 
-        // 3. Toggle the value
-        final bool newStatus = !currentStatus;
+  bool get isActive => _isActive;
 
-        // 4. Update Firestore
-        await busses.doc(busId).update({'active': newStatus});
-
-        print("✅ Bus status toggled to $newStatus");
-      } else {
-        print("❌ Bus document does not exist");
+  Future<void> checkBusStatus(String busId) async {
+    try {
+      final doc = await _firestore.collection('busses').doc(busId).get();
+      if (doc.exists) {
+        _isActive = doc.data()?['active'] as bool? ?? false;
+        notifyListeners(); // Update UI
       }
     } catch (e) {
-      print("❌ Error toggling bus status: $e");
+      print("❌ Error checking bus status: $e");
     }
   }
 }
