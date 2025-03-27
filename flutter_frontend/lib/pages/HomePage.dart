@@ -13,6 +13,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_frontend/util/polyline_util.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -31,6 +33,10 @@ class _HomePageState extends State<HomePage> {
   bool _isLoggedIn = false;
   bool _isDriver = false;
   String _busId = '';
+  late BusRouteProvider busRouteProvider;
+  late BusStopsProvider busStopsProvider;
+  // ✅ Save a reference to the provider
+
   @override
   void initState() {
     super.initState();
@@ -47,10 +53,14 @@ class _HomePageState extends State<HomePage> {
     _distance = context.watch<BusRouteProvider>().distance;
     _duration = context.watch<BusRouteProvider>().duration;
     _isInfoVisible = context.watch<UserLocationProvider>().isInfoVisible;
+    busRouteProvider = Provider.of<BusRouteProvider>(context, listen: false);
+    busStopsProvider = Provider.of<BusStopsProvider>(context, listen: false);
   }
 
   Future<void> initializeMap() async {
     await context.read<UserLocationProvider>().initializeLocation();
+    busRouteProvider.polylines = await initializeAllPolylines();
+    busStopsProvider.loadAllBusStops();
   }
 
   @override
@@ -97,27 +107,40 @@ class _HomePageState extends State<HomePage> {
 
       floatingActionButton:
           _isLoggedIn && _isDriver
-              ?
-              //if the role is driver show a button to make the bus active
-              FloatingActionButton.extended(
-                onPressed:
-                    () => context
-                        .read<BusDriverProvider>()
-                        .startLocationUpdates(_busId),
-                label: const Text(
-                  "Start Tracking",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                icon: const Icon(Icons.location_searching, size: 28),
-                backgroundColor:
-                    Colors.blueAccent, // Change this color as needed
-                foregroundColor: Colors.white,
-                elevation: 6,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+              ? Consumer<BusDriverProvider>(
+                builder: (context, provider, child) {
+                  return FloatingActionButton.extended(
+                    onPressed: () {
+                      if (provider.isActive) {
+                        provider.stopLocationUpdates(_busId);
+                      } else {
+                        provider.startLocationUpdates(_busId);
+                      }
+                    },
+                    label: Text(
+                      provider.isActive ? "Stop Tracking" : "Start Tracking",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    icon: Icon(
+                      provider.isActive ? Icons.stop : Icons.location_searching,
+                      size: 28,
+                    ),
+                    backgroundColor:
+                        provider.isActive
+                            ? Colors.redAccent
+                            : Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  );
+                },
               )
-              : SizedBox(height: 0),
+              : const SizedBox(height: 0),
     );
   }
 
