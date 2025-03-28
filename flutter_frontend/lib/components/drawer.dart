@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/components/login.dart';
+import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -95,11 +98,51 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Logout'),
-            onTap: () {
+            leading: FutureBuilder<SharedPreferences>(
+              future: SharedPreferences.getInstance(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Icon(
+                    Icons.hourglass_empty,
+                  ); // Placeholder icon while loading
+                }
+
+                bool isLoggedIn = snapshot.data!.getString('token') != null;
+
+                return Icon(
+                  isLoggedIn ? Icons.logout : Icons.login,
+                  color:
+                      isLoggedIn
+                          ? Colors.red
+                          : Colors.green, // Red for logout, green for login
+                );
+              },
+            ),
+            title: FutureBuilder<SharedPreferences>(
+              future: SharedPreferences.getInstance(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Text('Loading...');
+                }
+
+                bool isLoggedIn = snapshot.data!.getString('token') != null;
+
+                return Text(isLoggedIn ? 'Logout' : 'Login');
+              },
+            ),
+            onTap: () async {
               Navigator.pop(context);
-              // Add logout functionality
+              bool isLoggedIn = context.read<AuthProvider>().isLoggedIn;
+
+              if (isLoggedIn) {
+                context.read<AuthProvider>().logout(context);
+              } else {
+                // Navigate to Login Screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              }
             },
           ),
         ],

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend/firebase_options.dart';
 import 'package:flutter_frontend/pages/BusDetailsPage.dart';
 import 'package:flutter_frontend/pages/BusPage.dart';
+
+import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusDriverProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
@@ -32,6 +34,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => BusRouteProvider()),
         ChangeNotifierProvider(create: (context) => UserLocationProvider()),
         ChangeNotifierProvider(create: (context) => BusDriverProvider()),
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
