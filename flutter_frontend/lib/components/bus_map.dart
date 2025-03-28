@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/components/snackbar_helper.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -130,8 +131,9 @@ class _BusMapState extends State<BusMap> {
         CameraUpdate.newLatLngZoom(widget.currentPosition!, 16.0),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User location not available")),
+      CustomSnackBar.showError(
+        message: "No user location found.",
+        context: context,
       );
     }
   }
