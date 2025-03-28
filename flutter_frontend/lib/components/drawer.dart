@@ -6,6 +6,7 @@ import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../pages/AboutUs.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -93,7 +94,10 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('About Us'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/about');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => AboutUsPage()),
+              );
             },
           ),
           Divider(),

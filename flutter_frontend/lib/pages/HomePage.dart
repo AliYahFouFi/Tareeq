@@ -67,7 +67,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tareeq', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Tareeq',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
@@ -109,38 +117,43 @@ class _HomePageState extends State<HomePage> {
           _isLoggedIn && _isDriver
               ? Consumer<BusDriverProvider>(
                 builder: (context, provider, child) {
-                  return FloatingActionButton.extended(
-                    onPressed: () {
-                      if (provider.isActive) {
-                        provider.stopLocationUpdates(_busId);
-                      } else {
-                        provider.startLocationUpdates(_busId);
-                      }
-                    },
-                    label: Text(
-                      provider.isActive ? "Stop Tracking" : "Start Tracking",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                  return Container(
+                    alignment: Alignment.bottomLeft,
+                    padding: const EdgeInsets.only(left: 20, bottom: 0),
+
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        if (provider.isActive) {
+                          provider.stopLocationUpdates(_busId);
+                        } else {
+                          provider.startLocationUpdates(_busId);
+                        }
+                      },
+                      label: Text(
+                        provider.isActive ? "Deactivate Bus" : "Activate Bus",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    icon: Icon(
-                      provider.isActive ? Icons.stop : Icons.location_searching,
-                      size: 28,
-                    ),
-                    backgroundColor:
+                      icon: Icon(
                         provider.isActive
-                            ? Colors.redAccent
-                            : Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                            ? Icons.stop
+                            : Icons.location_searching,
+                        size: 28,
+                      ),
+                      backgroundColor:
+                          provider.isActive ? Colors.red : Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   );
                 },
               )
-              : const SizedBox(height: 0),
+              : null,
     );
   }
 

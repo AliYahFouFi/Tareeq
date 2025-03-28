@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: use_super_parameters, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
@@ -58,6 +58,7 @@ class DrawRouteButton extends StatelessWidget {
         });
 
         context.read<UserLocationProvider>().setInfoVisible(true);
+        Navigator.pop(context);
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.deepPurple,

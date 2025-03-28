@@ -1,5 +1,7 @@
 // polyline_utils.dart
 
+// ignore_for_file: deprecated_member_use
+
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -223,28 +225,36 @@ Future<Set<Polyline>> generatePolyLineFromPoints(
 ) async {
   final PolylineId id = PolylineId(Uuid().v4()); // Generate a unique ID
 
-  final Random random = Random();
+  // Predefined color palette with better visual harmony
   final List<Color> colors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow,
-    Colors.purple,
-    Colors.deepOrange,
+    const Color(0xFF4285F4),
+    const Color(0xFF34A853),
+    const Color(0xFFEA4335),
+    const Color(0xFFFBBC05),
+    const Color(0xFF673AB7),
+    const Color(0xFFFF5722),
   ];
-  final Color randomColor = colors[random.nextInt(colors.length)];
+
+  final Random random = Random();
+  final Color selectedColor = colors[random.nextInt(colors.length)].withOpacity(
+    0.8,
+  );
 
   final Polyline polyline = Polyline(
     polylineId: id,
     points: pointCoordinates,
-    width: 5,
-    color: randomColor,
+    width: 4,
+    color: selectedColor,
+    startCap: Cap.roundCap,
+    endCap: Cap.roundCap,
+    jointType: JointType.round,
+
     onTap: () {
-      print('agusgfhjkadgfhjkadgfhjkadgfhjkadg');
+      debugPrint('Polyline tapped: ${id.value}');
     },
   );
 
-  return {polyline}; // Return a Set of polylines
+  return {polyline};
 }
 
 //TO initialize polylines and display all the routes fetched form the db

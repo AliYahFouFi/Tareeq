@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/snackbar_helper.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
@@ -8,7 +10,6 @@ import 'package:provider/provider.dart';
 
 class BusMap extends StatefulWidget {
   final LatLng? currentPosition;
-
   final List<BusStop> busStops;
   final Set<Marker> Function() getBusStopMarkers;
   final Function(GoogleMapController) onMapCreated;
@@ -28,26 +29,26 @@ class BusMap extends StatefulWidget {
 class _BusMapState extends State<BusMap> {
   static const LatLng _beirutLocation = LatLng(33.8938, 35.5018);
   late GoogleMapController _mapController;
+  final double _buttonSize = 50.0;
+  final double _buttonSpacing = 10.0;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // Google Map
         GoogleMap(
           initialCameraPosition: CameraPosition(
             target:
                 context.watch<UserLocationProvider>().getUserLocation() ??
-                _beirutLocation, // Default to Beirut
+                _beirutLocation,
             zoom: 15,
           ),
-
           onMapCreated: (controller) {
             _mapController = controller;
             widget.onMapCreated(controller);
-
-            // Auto-zoom to user location on app start
             if (widget.currentPosition != null) {
-              Future.delayed(Duration(milliseconds: 500), () {
+              Future.delayed(const Duration(milliseconds: 500), () {
                 _mapController.animateCamera(
                   CameraUpdate.newLatLngZoom(widget.currentPosition!, 16.0),
                 );
@@ -56,7 +57,7 @@ class _BusMapState extends State<BusMap> {
           },
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
-          zoomControlsEnabled: false, // Removes default zoom buttons
+          zoomControlsEnabled: false,
           compassEnabled: true,
           mapType: MapType.normal,
           polylines: context.watch<BusRouteProvider>().polylines,
@@ -73,58 +74,82 @@ class _BusMapState extends State<BusMap> {
           },
         ),
 
-        // Zoom Out Button
+        // Zoom Controls (Top Right)
         Positioned(
-          bottom: 77.5,
-          right: 15,
-          child: Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEADDFF), // Light purple background
-              borderRadius: BorderRadius.circular(16), // Rounded corners
-            ),
-            child: FloatingActionButton(
-              onPressed: _zoomOut,
-              elevation: 0, // No extra shadow
-              child: const Icon(
-                Icons.zoom_out,
-                color: Color(0xFF4F378B), // Deep purple icon
+          top: _buttonSpacing,
+          right: _buttonSpacing,
+          child: Column(
+            children: [
+              _buildMapControlButton(
+                icon: Icons.add,
+                onPressed: _zoomIn,
+                tooltip: 'Zoom in',
               ),
-            ),
+              SizedBox(height: _buttonSpacing),
+              _buildMapControlButton(
+                icon: Icons.remove,
+                onPressed: _zoomOut,
+                tooltip: 'Zoom out',
+              ),
+            ],
           ),
         ),
-        // Zoom to User Button
+
+        // My Location Button (Bottom Right)
         Positioned(
-          bottom: 140,
-          right: 15,
-          child: Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEADDFF), // Light Purple Background
-              borderRadius: BorderRadius.circular(16), // Rounded Corners
-            ),
-            child: FloatingActionButton(
-              onPressed: _zoomToUserLocation,
-              elevation: 0, // No extra shadow
-              child: const Icon(
-                Icons.my_location,
-                color: Color(0xFF4F378B), // Deep Purple Icon
-              ),
-            ),
+          bottom: _buttonSpacing,
+          right: _buttonSpacing,
+          child: _buildMapControlButton(
+            icon: Icons.my_location,
+            onPressed: _zoomToUserLocation,
+            tooltip: 'My location',
           ),
         ),
       ],
     );
   }
 
-  /// Function to zoom out
+  Widget _buildMapControlButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required String tooltip,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        width: _buttonSize,
+        height: _buttonSize,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: onPressed,
+            child: Icon(icon, color: Colors.deepPurple, size: 20),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _zoomIn() {
+    _mapController.animateCamera(CameraUpdate.zoomIn());
+  }
+
   void _zoomOut() {
     _mapController.animateCamera(CameraUpdate.zoomOut());
   }
 
-  /// Function to zoom to user location
   void _zoomToUserLocation() {
     if (widget.currentPosition != null) {
       _mapController.animateCamera(
@@ -132,8 +157,8 @@ class _BusMapState extends State<BusMap> {
       );
     } else {
       CustomSnackBar.showError(
-        message: "No user location found.",
         context: context,
+        message: "No user location found",
       );
     }
   }
