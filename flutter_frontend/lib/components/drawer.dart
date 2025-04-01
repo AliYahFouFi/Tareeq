@@ -70,7 +70,7 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('Buy Tickets'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/buy_tickets');
+              Navigator.pushNamed(context, '/payment');
             },
           ),
           ListTile(
@@ -94,10 +94,7 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('About Us'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => AboutUsPage()),
-              );
+              Navigator.pushNamed(context, '/AboutUs');
             },
           ),
           Divider(),
