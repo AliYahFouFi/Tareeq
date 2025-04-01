@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BusStopController;
 use App\Http\Controllers\BusRouteController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PaymentController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 
@@ -27,4 +28,5 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
-    
+
+Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
