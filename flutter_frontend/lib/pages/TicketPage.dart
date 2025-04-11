@@ -149,7 +149,11 @@ class _TicketPageState extends State<TicketPage> {
                                     ),
                                     SizedBox(height: 5),
                                     OutlinedButton(
-                                      onPressed: () => print('ticket deleted'),
+                                      onPressed: () {
+                                        PaymentService.instance.deleteTicket(
+                                          ticket.id!,
+                                        );
+                                      },
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Colors.red,
                                         side: BorderSide(color: Colors.red),

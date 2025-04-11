@@ -103,4 +103,12 @@ class PaymentService {
       throw Exception('Failed to load tickets');
     }
   }
+
+  Future<void> deleteTicket(String ticketId) async {
+    final response = await http.delete(Uri.parse('$baseUrl/tickets/$ticketId'));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete ticket');
+    }
+  }
 }

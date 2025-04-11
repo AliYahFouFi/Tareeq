@@ -33,3 +33,4 @@ Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentI
 //
 Route::post('/tickets/{Userid}', [TicketController::class, 'generateTicket']);
 Route::get('/tickets/{Userid}', [TicketController::class, 'getUserTickets']);
+Route::delete('/tickets/{id}', [TicketController::class, 'deleteTicket']);
