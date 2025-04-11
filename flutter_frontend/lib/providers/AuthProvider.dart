@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
   String _selectedRole = 'user';
-
+  String userId = '';
   bool get isLoggedIn => _isLoggedIn;
   String get selectedRole => _selectedRole;
 
@@ -46,6 +46,7 @@ class AuthProvider with ChangeNotifier {
 
       _isLoggedIn = true;
       _selectedRole = response.role;
+      userId = response.id;
       notifyListeners();
 
       CustomSnackBar.showSuccess(
