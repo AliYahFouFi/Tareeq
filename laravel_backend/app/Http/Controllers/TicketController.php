@@ -40,4 +40,17 @@ class TicketController extends Controller
 
         return response()->json($tickets);
     }
+
+    public function deleteTicket($id)
+    {
+        $ticket = Ticket::find($id);
+
+        if (!$ticket) {
+            return response()->json(['error' => 'Ticket not found'], 404);
+        }
+
+        $ticket->delete();
+
+        return response()->json(['message' => 'Ticket deleted successfully']);
+    }
 }
