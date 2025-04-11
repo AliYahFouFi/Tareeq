@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/login.dart';
+import 'package:flutter_frontend/pages/TicketPage.dart';
 import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../pages/AboutUs.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -45,7 +45,6 @@ class _AppDrawerState extends State<AppDrawer> {
             title: Text('Bus Routes'),
             onTap: () async {
               Navigator.pop(context);
-              // ✅ Use the saved reference instead of context.read()
               busRouteProvider.polylines = await initializeAllPolylines();
               busStopsProvider.loadAllBusStops();
             },
@@ -65,14 +64,38 @@ class _AppDrawerState extends State<AppDrawer> {
               Navigator.pushNamed(context, '/timetable');
             },
           ),
-          ListTile(
-            leading: Icon(Icons.credit_card),
-            title: Text('Buy Tickets'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/payment');
+
+          FutureBuilder<SharedPreferences>(
+            future: SharedPreferences.getInstance(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return SizedBox(); // or a shimmer/loading if you prefer
+              }
+
+              bool isLoggedIn = snapshot.data!.getString('token') != null;
+
+              if (!isLoggedIn) {
+                return SizedBox(); // Hide the ListTile completely if not logged in
+              }
+
+              return ListTile(
+                leading: Icon(Icons.credit_card),
+                title: Text('Buy Tickets'),
+                onTap: () {
+                  SharedPreferences prefs = snapshot.data!;
+                  String? userId = prefs.getString('id');
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TicketPage(userId: userId!),
+                    ),
+                  );
+                },
+              );
             },
           ),
+
           ListTile(
             leading: Icon(Icons.favorite),
             title: Text('Saved Routes'),

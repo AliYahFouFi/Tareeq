@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BusStopController;
 use App\Http\Controllers\BusRouteController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use App\Http\Controllers\TicketController;
+
 
 
 Route::get('/', function () {
@@ -30,3 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
+//
+Route::post('/tickets/{Userid}', [TicketController::class, 'generateTicket']);
+Route::get('/tickets/{Userid}', [TicketController::class, 'getUserTickets']);
