@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/pages/AboutUs.dart';
+import 'package:flutter_frontend/pages/TimetablePage.dart';
 import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusDriverProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/AboutUs': (context) => AboutUsPage(),
           // '/Ticket': (context) => TicketPage(),
+          '/timetable': (context) => VisualTimetablePage(),
         },
         debugShowCheckedModeBanner: false,
         title: 'Tareeq',

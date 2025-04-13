@@ -71,10 +71,19 @@ class _TicketPageState extends State<TicketPage> {
           Padding(
             padding: EdgeInsets.all(16),
             child: ElevatedButton(
-              onPressed: () {
-                PaymentService.instance.makePayment();
-                print('Buy Ticket pressed');
+              onPressed: () async {
+                bool success = await PaymentService.instance.makePayment();
+                if (success) {
+                  setState(() {}); // re-trigger build and refresh FutureBuilder
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Payment failed. Please try again.'),
+                    ),
+                  );
+                }
               },
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 minimumSize: Size(double.infinity, 50),
@@ -153,6 +162,7 @@ class _TicketPageState extends State<TicketPage> {
                                         PaymentService.instance.deleteTicket(
                                           ticket.id!,
                                         );
+                                        setState(() {});
                                       },
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Colors.red,

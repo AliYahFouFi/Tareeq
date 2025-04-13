@@ -34,12 +34,12 @@ class PaymentService {
     }
   }
 
-  Future<void> makePayment() async {
+  Future<bool> makePayment() async {
     try {
       http.Response response = await instance.createPaymentIntent();
       // ignore: unnecessary_null_comparison
       if (response == null) {
-        return;
+        return false;
       }
       Map<String, dynamic> data = jsonDecode(response.body);
       await Stripe.instance.initPaymentSheet(
@@ -51,11 +51,14 @@ class PaymentService {
 
       try {
         await _processPayment();
+        return true;
       } catch (e) {
         print('PROCESS PAYMENT ERROR $e');
+        return false;
       }
     } catch (e) {
       print("Error making payment: $e");
+      return false;
     }
   }
 
