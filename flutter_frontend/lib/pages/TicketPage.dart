@@ -63,7 +63,15 @@ class _TicketPageState extends State<TicketPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Your Tickets", style: TextStyle(color: Colors.white)),
+        title: Text(
+          "Your Tickets",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         backgroundColor: Colors.deepPurple,
       ),
       body: Column(

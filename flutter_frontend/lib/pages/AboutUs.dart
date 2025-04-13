@@ -9,7 +9,16 @@ class AboutUsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About Tareeq'),
+        title: const Text(
+          'About Tareeq',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        backgroundColor: Colors.deepPurple,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

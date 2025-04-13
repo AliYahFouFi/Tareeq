@@ -56,6 +56,7 @@ class _BusMapState extends State<BusMap> {
             }
           },
           myLocationEnabled: true,
+          mapToolbarEnabled: false,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
           compassEnabled: true,

@@ -15,7 +15,15 @@ class _VisualTimetablePageState extends State<VisualTimetablePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
-        title: Text('Timetable (Sample)'),
+        title: Text(
+          'Timetable (Sample)',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.info_outline),
