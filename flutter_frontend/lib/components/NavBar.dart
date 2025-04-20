@@ -45,6 +45,11 @@ class _NavBarState extends State<NavBar> {
           text: 'Routes',
           onPressed: () => showBusRoutesBottomSheet(context),
         ),
+        GButton(
+          icon: Icons.room,
+          text: 'Select Stop',
+          onPressed: () => Navigator.pushNamed(context, '/selectStopPage'),
+        ),
       ],
     );
   }
