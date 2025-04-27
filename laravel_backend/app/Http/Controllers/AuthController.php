@@ -57,6 +57,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'name' => $user->name,
             'message' => 'Login successful!',
+            'is_2fa_enabled' => $user->is_2fa_enabled,
         ]);
     }
 

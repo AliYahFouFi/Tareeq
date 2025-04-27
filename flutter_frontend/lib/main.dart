@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend/pages/AboutUs.dart';
 import 'package:flutter_frontend/pages/SelectStopsPage.dart';
 import 'package:flutter_frontend/pages/TimetablePage.dart';
+import 'package:flutter_frontend/pages/TwoFactorVerificationScreen.dart';
 import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusDriverProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
@@ -38,6 +39,10 @@ class MyApp extends StatelessWidget {
 
       child: MaterialApp(
         routes: {
+          '/home': (context) => HomePage(),
+          '/verify2fa': (context) => TwoFactorVerificationScreen(
+            token: Provider.of<AuthProvider>(context, listen: false).userToken,
+          ),
           '/AboutUs': (context) => AboutUsPage(),
           '/selectStopPage': (context) => SelectStopsPage(),
           '/timetable': (context) => VisualTimetablePage(),
