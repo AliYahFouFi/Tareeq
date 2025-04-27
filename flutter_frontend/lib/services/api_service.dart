@@ -50,9 +50,63 @@ class ApiService {
         email: data['email'],
         role: data['role'],
         token: data['token'],
+        is2FAEnabled: data['is_2fa_enabled'] == 1,
       );
     } else {
       return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> enable2FA(String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/user/2fa/setup'),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        return {
+          'secret': data['secret'],
+          'qrcode_data': data['qrcode_data'] // Make sure this matches your backend field
+        };
+      } else {
+        print("Enable 2FA failed: ${response.statusCode} - ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("Error during enabling 2FA: $e");
+      return null;
+    }
+  }
+
+
+  static Future<bool> verify2FA(String token, String code) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/user/2fa/verify'),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+          "Content-Type": "application/json",  // Important!
+        },
+        body: jsonEncode({
+          "code": code,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("2FA verification failed: ${response.statusCode} - ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error during 2FA verification: $e");
+      return false;
     }
   }
 

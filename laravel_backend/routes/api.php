@@ -6,6 +6,7 @@ use App\Http\Controllers\BusRouteController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\TwoFactorController;
 
 
 
@@ -27,6 +28,8 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/user/2fa/setup', [TwoFactorController::class, 'enable2FA']);
+    Route::post('/user/2fa/verify', [TwoFactorController::class, 'verify2FA']);
 });
 
 Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);

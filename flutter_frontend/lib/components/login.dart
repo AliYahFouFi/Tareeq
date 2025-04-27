@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/snackbar_helper.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
+import 'package:flutter_frontend/pages/QRCodeScreen.dart';
+import 'package:flutter_frontend/pages/TwoFactorVerificationScreen.dart';
 import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:provider/provider.dart';
 
@@ -13,8 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   bool isLoginMode = true;
   final List<String> roles = ['user', 'driver'];
 
@@ -26,10 +27,28 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
+      if (!authProvider.is2FAEnabled) {
+        // New user needs to set up 2FA
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QRCodeScreen(
+              qrCodeData: authProvider.qrCodeData,
+              token: authProvider.userToken,
+            ),
+          ),
+        );
+      } else {
+        // Existing user with 2FA enabled - show verification screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TwoFactorVerificationScreen(
+              token: authProvider.userToken,
+            ),
+          ),
+        );
+      }
     }
   }
 

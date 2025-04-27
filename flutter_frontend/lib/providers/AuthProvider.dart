@@ -2,15 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/snackbar_helper.dart';
 import 'package:flutter_frontend/models/User_model.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
+import 'package:flutter_frontend/pages/QRCodeScreen.dart';
 import 'package:flutter_frontend/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
   String _selectedRole = 'user';
   String userId = '';
+  bool _is2FAEnabled = false;
+  String _userToken = '';
+  String _qrCodeData = ''; // Move this field declaration above the getter
+
   bool get isLoggedIn => _isLoggedIn;
   String get selectedRole => _selectedRole;
+  bool get is2FAEnabled => _is2FAEnabled;
+  String get userToken => _userToken;
+  String get qrCodeData => _qrCodeData;
 
   AuthProvider() {
     checkIfLoggedIn();
@@ -27,18 +36,12 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> login(
-    String email,
-    String password,
-    BuildContext context,
-  ) async {
+  Future<bool> login(String email, String password, BuildContext context) async {
     notifyListeners();
 
     User? response = await ApiService.login(email, password);
 
-    if (response != null &&
-        response.token.isNotEmpty &&
-        response.role.isNotEmpty) {
+    if (response != null && response.token.isNotEmpty && response.role.isNotEmpty) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', response.token);
       await prefs.setString('role', response.role);
@@ -47,23 +50,40 @@ class AuthProvider with ChangeNotifier {
       _isLoggedIn = true;
       _selectedRole = response.role;
       userId = response.id;
+      _userToken = response.token;
+      _is2FAEnabled = response.is2FAEnabled;
+      
+      // Check if 2FA is not yet set up for this user
+      if (!response.is2FAEnabled) {
+        // If 2FA is not enabled, call enable2FA to set it up
+        final data = await ApiService.enable2FA(response.token);
+        
+        if (data != null) {
+          // Save QR code data to provider state
+          _qrCodeData = data['qrcode_data'];
+        } else {
+          CustomSnackBar.showError(
+            message: "Failed to enable 2FA!",
+            context: context,
+          );
+          notifyListeners();
+          return false;
+        }
+      } else {
+        // For users with 2FA already enabled, we need to get their verification code
+        // We'll just set a placeholder since we'll require verification either way
+        _qrCodeData = "authenticate"; // This is just a placeholder
+      }
+      
       notifyListeners();
-
-      CustomSnackBar.showSuccess(
-        message: "Login successful!",
-        context: context,
-      );
-
-      notifyListeners();
-      return true; // Return true on successful login
+      return true;
     } else {
       CustomSnackBar.showError(
         message: "Login failed! Please check your credentials.",
         context: context,
       );
-
       notifyListeners();
-      return false; // Return false on login failure
+      return false;
     }
   }
 

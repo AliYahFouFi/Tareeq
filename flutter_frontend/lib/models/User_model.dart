@@ -4,6 +4,7 @@ class User {
   final String email;
   final String role;
   final String token;
+  final bool is2FAEnabled;
 
   User({
     required this.id,
@@ -11,6 +12,7 @@ class User {
     required this.email,
     required this.role,
     required this.token,
+    required this.is2FAEnabled,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class User {
       email: json['email'] ?? '', // Default to empty string if null
       role: json['role'] ?? 'user', // Default to 'Unknown' if null
       token: json['token'] ?? '',
+      is2FAEnabled: json['is_2fa_enabled'] == 1,
     );
   }
 }
