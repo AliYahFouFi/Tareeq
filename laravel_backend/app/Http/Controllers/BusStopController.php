@@ -47,4 +47,54 @@ class BusStopController extends Controller
 
         return redirect()->route('bus_stops.create')->with('success', 'Bus Stop added successfully!');
     }
+
+    public function showAllStops()
+    {
+        $stops = BusStop::all();
+        return view('admin.stops', compact('stops'));
+    }
+    public function edit($id)
+    {
+        $stop = BusStop::findOrFail($id);
+        return view('stops-edit', compact('stop'));
+    }
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);
+
+        $bus_stop = BusStop::findOrFail($id);
+        $bus_stop->update($request->all());
+
+        return redirect()->route('admin-stops.index')->with('success', 'Bus Stop updated successfully!');
+    }
+
+
+    public function destroy($id)
+    {
+        $bus_stop = BusStop::findOrFail($id);
+        $bus_stop->delete();
+
+        return redirect()->route('admin-stops.index')->with('success', 'Bus Stop deleted successfully!');
+    }
+
+
+    public function show($id)
+    {
+        $bus_stop = BusStop::findOrFail($id);
+        return view('bus_stops.show', compact('bus_stop'));
+    }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $bus_stops = BusStop::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('address', 'LIKE', "%{$query}%")
+            ->get();
+
+        return response()->json($bus_stops);
+    }
 }
