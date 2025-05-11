@@ -25,9 +25,20 @@ Future<List<Map<String, dynamic>>> getBusRoutesWithFirstAndLastStop() async {
 }
 
 void showBusRoutesBottomSheet(BuildContext context) async {
+  // Store provider references before async operations
+  final busStopsProvider = Provider.of<BusStopsProvider>(
+    context,
+    listen: false,
+  );
+  final busRouteProvider = Provider.of<BusRouteProvider>(
+    context,
+    listen: false,
+  );
+
   List<Map<String, dynamic>> busRoutes =
       await getBusRoutesWithFirstAndLastStop();
 
+  // ignore: use_build_context_synchronously
   showModalBottomSheet(
     context: context,
     shape: RoundedRectangleBorder(
@@ -92,13 +103,13 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                   return GestureDetector(
                     onTap: () async {
                       String routeId = route['route_id'].toString();
-                      context.read<BusStopsProvider>().setBusStops(
+                      // Use stored provider references instead of context.read
+                      busStopsProvider.setBusStops(
                         await BusStopService.getBusStopsForOneRoute(routeId),
                       );
                       Set<Polyline> polylineForOneRoute =
                           await generatePolylineForOneRoute(routeId);
-                      context.read<BusRouteProvider>().polylines =
-                          polylineForOneRoute;
+                      busRouteProvider.setPolyline(polylineForOneRoute);
                       Navigator.pop(context);
                     },
                     child: Container(

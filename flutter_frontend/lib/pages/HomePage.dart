@@ -89,19 +89,22 @@ class _HomePageState extends State<HomePage> {
             child: BusMap(
               currentPosition: _currentPosition,
               busStops: _busStops,
-              getBusStopMarkers:
-                  () => getBusStopMarkers(
-                    busStops: _busStops,
-                    currentPosition: _currentPosition!,
-                    distance: _distance,
-                    duration: _duration,
-                    context: context,
-                  ),
+              getBusStopMarkers: () {
+                if (_currentPosition == null) {
+                  return <Marker>{}; // Return empty set if position is null
+                }
+                return getBusStopMarkers(
+                  busStops: _busStops,
+                  currentPosition: _currentPosition!,
+                  distance: _distance,
+                  duration: _duration,
+                  context: context,
+                );
+              },
               onMapCreated: (GoogleMapController controller) {
                 _mapController = controller;
               },
-              initialZoomPosition:
-                  widget.initialZoomPosition, // Pass the initialZoomPosition
+              initialZoomPosition: widget.initialZoomPosition,
             ),
           ),
 

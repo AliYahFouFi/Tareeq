@@ -48,15 +48,16 @@ class _BusMapState extends State<BusMap> {
   }
 
   Set<Marker> _getSavedLocationMarkers(BuildContext context) {
+    if (widget.currentPosition == null) return {};
+
     final savedPlaces = context.watch<SavedPlacesProvider>().places;
-    //change on this lines
     return savedPlaces.map((place) {
       return buildSavedPlaceMarker(
         context: context,
         place: place,
         mainButtonText: 'Show Route',
         mainButtonIcon: Icons.alt_route,
-        currentPosition: widget.currentPosition ?? LatLng(0.0, 0.0),
+        currentPosition: widget.currentPosition!,
       );
     }).toSet();
   }
@@ -102,7 +103,7 @@ class _BusMapState extends State<BusMap> {
           mapType: MapType.normal,
           polylines: context.watch<BusRouteProvider>().polylines,
           markers: {
-            ...widget.getBusStopMarkers(),
+            if (widget.currentPosition != null) ...widget.getBusStopMarkers(),
             ..._getSavedLocationMarkers(context),
           },
           onCameraMove: (position) {
