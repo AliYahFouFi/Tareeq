@@ -28,35 +28,57 @@ void showBusRoutesBottomSheet(BuildContext context) async {
 
   showModalBottomSheet(
     context: context,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
     builder: (context) {
       return Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        padding: EdgeInsets.all(16),
-        height: 400, // Adjust based on content
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "Available Bus Routes",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Header with close button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Available Bus Routes",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 8),
+            const Divider(height: 1),
+            const SizedBox(height: 16),
+
+            // Route list
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 itemCount: busRoutes.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   var route = busRoutes[index];
-                  return GestureDetector(
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(12),
                     onTap: () async {
-                      // close the bottom sheet
-
+                      Navigator.pop(context);
                       String routeId = route['route_id'].toString();
-                      //this changes the value in the provider to the stops of the selected route
                       context.read<BusStopsProvider>().setBusStops(
                         await BusStopService.getBusStopsForOneRoute(routeId),
                       );
@@ -64,23 +86,53 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                           await generatePolylineForOneRoute(routeId);
                       context.read<BusRouteProvider>().polylines =
                           polylineForOneRoute;
-
-                      print(
-                        "THIS FUNCTION IS BUS DETAILS WORKING SOOIHUJIASFGHUASDF ",
-                      );
                     },
-                    child: Card(
-                      elevation: 2,
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        title: Text(
-                          route['route_name'].toString(),
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          "From: ${route['first_stop']} → To: ${route['last_stop']}",
-                        ),
-                        leading: Icon(Icons.directions_bus, color: Colors.blue),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.directions_bus,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  route['route_name'].toString(),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "${route['first_stop']} → ${route['last_stop']}",
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, color: Colors.grey),
+                        ],
                       ),
                     ),
                   );

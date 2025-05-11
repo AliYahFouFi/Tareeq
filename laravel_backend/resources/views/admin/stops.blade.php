@@ -39,7 +39,7 @@
                         </td>
                     </tr>
                 @endforeach
-                {{-- Replace with @foreach ($stops as $stop) --}}
+
             </tbody>
         </table>
     </div>

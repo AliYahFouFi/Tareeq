@@ -22,13 +22,13 @@ class FloatingInfoCard extends StatelessWidget {
     if (!isVisible) return SizedBox.shrink(); // Hide if not visible
 
     return Positioned(
-      top: 10, // Adjust distance from the app bar
+      top: 6, // Adjust distance from the app bar
       left: 16,
-      right: 16,
+      right: 65,
       child: Card(
-        elevation: 4, // Adds shadow for a floating effect
+        elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Colors.white, // Light background for better contrast
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(

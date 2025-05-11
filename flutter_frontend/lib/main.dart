@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/models/SavedPlace.dart';
 import 'package:flutter_frontend/pages/AboutUs.dart';
 import 'package:flutter_frontend/pages/SelectStopsPage.dart';
 import 'package:flutter_frontend/pages/TimetablePage.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusDriverProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
+import 'package:flutter_frontend/providers/SavedPlacesProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'pages/HomePage.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +22,8 @@ Future<void> main() async {
   } catch (e) {
     print("❌ Firebase initialization failed: $e");
   }
+  final savedPlacesProvider = SavedPlacesProvider();
+  await savedPlacesProvider.loadPlacesFromLocalStorage();
   runApp(const MyApp());
 }
 
@@ -35,14 +39,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UserLocationProvider()),
         ChangeNotifierProvider(create: (context) => BusDriverProvider()),
         ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => SavedPlacesProvider()),
       ],
 
       child: MaterialApp(
         routes: {
           '/home': (context) => HomePage(),
-          '/verify2fa': (context) => TwoFactorVerificationScreen(
-            token: Provider.of<AuthProvider>(context, listen: false).userToken,
-          ),
+          '/verify2fa':
+              (context) => TwoFactorVerificationScreen(
+                token:
+                    Provider.of<AuthProvider>(context, listen: false).userToken,
+              ),
           '/AboutUs': (context) => AboutUsPage(),
           '/selectStopPage': (context) => SelectStopsPage(),
           '/timetable': (context) => VisualTimetablePage(),

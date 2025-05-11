@@ -8,6 +8,8 @@ class BusRouteProvider extends ChangeNotifier {
   String distance = '';
   String duration = '';
   LatLng? _lastUpdatedPosition;
+  // Define a field to store listener
+  VoidCallback? updateRouteListener;
 
   BusRouteProvider();
 

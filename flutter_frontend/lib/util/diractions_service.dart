@@ -68,6 +68,19 @@ Future<List<LatLng>> getRouteCoordinates(
   throw Exception('Failed to load directions');
 }
 
+/// Draws a walking route from the user's current location to the destination.
+///
+/// The route is drawn as a blue dashed line on the map. The line is slightly
+/// transparent to not obscure the map features.
+///
+/// Parameters:
+/// - [endLat]: The latitude of the destination location.
+/// - [endLon]: The longitude of the destination location.
+/// - [currentPosition]: The user's current location as a [LatLng] object.
+///
+/// Returns:
+/// A [Future] that resolves to a [Set] of one [Polyline] object representing
+/// the route.
 Future<Set<Polyline>> drawRoute({
   required double endLat,
   required double endLon,

@@ -3,9 +3,8 @@ import 'package:flutter_frontend/models/BusRoute_model.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/util/BusStop_service.dart';
-
 import 'package:flutter_frontend/util/polyline_util.dart';
-import 'package:provider/provider.dart'; // Your route fetching logic
+import 'package:provider/provider.dart';
 
 class SelectStopsPage extends StatefulWidget {
   @override
@@ -44,6 +43,8 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
       originStop = null;
       destinationStop = null;
       stopsBetween = [];
+      travelDistance = null;
+      travelDuration = null;
     });
   }
 
@@ -56,7 +57,7 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
             originStop!.longitude,
             destinationStop!.latitude,
             destinationStop!.longitude,
-            'driving', // or 'walking', 'transit', etc.
+            'driving',
           );
 
       setState(() {
@@ -80,15 +81,19 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
         setState(() {
           stopsBetween = routeStops.sublist(start, end + 1);
         });
-        fetchDistanceAndDuration(); // Call here
+        fetchDistanceAndDuration();
       }
     }
   }
 
   void _showRouteSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Please select a route first!")));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Please select a route first!"),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -96,181 +101,351 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Select Route and Stops',
+          'Plan Your Journey',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Route selection
+                      _buildSectionHeader("1. Select Your Route"),
+                      const SizedBox(height: 8),
+                      _buildRouteDropdown(),
+                      const SizedBox(height: 24),
+
+                      // Origin and destination
+                      _buildSectionHeader("2. Choose Your Stops"),
+                      const SizedBox(height: 16),
+                      _buildStopDropdown(
+                        label: "Starting Point",
+                        value: originStop,
+                        onChanged: (value) {
+                          setState(() => originStop = value);
+                          _updatePreview();
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildStopDropdown(
+                        label: "Destination",
+                        value: destinationStop,
+                        onChanged: (value) {
+                          setState(() => destinationStop = value);
+                          _updatePreview();
+                        },
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Route preview
+                      if (stopsBetween.isNotEmpty) ...[
+                        _buildSectionHeader("Journey Details"),
+                        const SizedBox(height: 16),
+                        _buildJourneyInfoCard(),
+                        const SizedBox(height: 16),
+                        _buildStopsList(),
+                      ],
+                      const SizedBox(height: 80), // Space for bottom tip
+                    ],
+                  ),
+                ),
+              ),
+              // Bottom tip
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple[50],
+                  border: Border(
+                    top: BorderSide(color: Colors.deepPurple[100]!, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outline_rounded,
+                      color: Colors.deepPurple[400],
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Tip: Select a route first, then choose your start and end stops',
+                        style: TextStyle(
+                          color: Colors.deepPurple[800],
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Colors.deepPurple,
+      ),
+    );
+  }
+
+  Widget _buildRouteDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: DropdownButtonFormField<BusRoute>(
+        value: selectedRoute,
+        decoration: InputDecoration(
+          labelText: 'Bus Route',
+          labelStyle: TextStyle(color: Colors.grey[700]),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          prefixIcon: Icon(
+            Icons.directions_bus_rounded,
+            color: Colors.deepPurple,
+          ),
+        ),
+        items:
+            routes.map((route) {
+              return DropdownMenuItem<BusRoute>(
+                value: route,
+                child: Text(
+                  route.route_name,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              );
+            }).toList(),
+        onChanged: _onRouteSelected,
+        style: const TextStyle(color: Colors.black87),
+        dropdownColor: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        icon: Icon(Icons.arrow_drop_down_rounded, color: Colors.deepPurple),
+      ),
+    );
+  }
+
+  Widget _buildStopDropdown({
+    required String label,
+    required BusStop? value,
+    required Function(BusStop?) onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: DropdownButtonFormField<BusStop>(
+        value: value,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.grey[700]),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          prefixIcon: Icon(
+            label.contains("Starting") ? Icons.flag : Icons.location_pin,
+            color: label.contains("Starting") ? Colors.green : Colors.red,
+          ),
+        ),
+        items:
+            selectedRoute == null
+                ? []
+                : routeStops.map((stop) {
+                  return DropdownMenuItem<BusStop>(
+                    value: stop,
+                    child: Text(
+                      stop.name,
+                      style: const TextStyle(fontSize: 16),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                }).toList(),
+        onChanged:
+            selectedRoute == null
+                ? (_) => _showRouteSnackBar(context)
+                : (value) => onChanged(value),
+        style: const TextStyle(color: Colors.black87),
+        dropdownColor: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        icon: Icon(Icons.arrow_drop_down_rounded, color: Colors.deepPurple),
+      ),
+    );
+  }
+
+  Widget _buildJourneyInfoCard() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Route dropdown
-            DropdownButtonFormField<BusRoute>(
-              value: selectedRoute,
-              decoration: InputDecoration(
-                labelText: 'Select Route',
-                border: OutlineInputBorder(),
-              ),
-              items:
-                  routes.map((route) {
-                    return DropdownMenuItem<BusRoute>(
-                      value: route,
-                      child: Text(route.route_name),
-                    );
-                  }).toList(),
-              onChanged: _onRouteSelected,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildInfoItem(
+                  icon: Icons.access_time_rounded,
+                  color: Colors.teal,
+                  title: "Duration",
+                  value: travelDuration ?? "--",
+                ),
+                _buildInfoItem(
+                  icon: Icons.directions_rounded,
+                  color: Colors.blue,
+                  title: "Distance",
+                  value: travelDistance ?? "--",
+                ),
+                _buildInfoItem(
+                  icon: Icons.stop_circle_rounded,
+                  color: Colors.purple,
+                  title: "Stops",
+                  value: stopsBetween.length.toString(),
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-
-            // Origin
-            DropdownButtonFormField<BusStop>(
-              value: originStop,
-              decoration: InputDecoration(
-                labelText: 'Origin Stop',
-                border: OutlineInputBorder(),
-              ),
-              items:
-                  selectedRoute == null
-                      ? []
-                      : routeStops.map((stop) {
-                        return DropdownMenuItem<BusStop>(
-                          value: stop,
-                          child: Text(stop.name),
-                        );
-                      }).toList(),
-              onChanged:
-                  selectedRoute == null
-                      ? (_) => _showRouteSnackBar(context)
-                      : (value) {
-                        setState(() {
-                          originStop = value;
-                        });
-                        _updatePreview();
-                      },
-            ),
-            SizedBox(height: 20),
-
-            // Destination
-            DropdownButtonFormField<BusStop>(
-              value: destinationStop,
-              decoration: InputDecoration(
-                labelText: 'Destination Stop',
-                border: OutlineInputBorder(),
-              ),
-              items:
-                  selectedRoute == null
-                      ? []
-                      : routeStops.map((stop) {
-                        return DropdownMenuItem<BusStop>(
-                          value: stop,
-                          child: Text(stop.name),
-                        );
-                      }).toList(),
-              onChanged:
-                  selectedRoute == null
-                      ? (_) => _showRouteSnackBar(context)
-                      : (value) {
-                        setState(() {
-                          destinationStop = value;
-                        });
-                        _updatePreview();
-                      },
-            ),
-            SizedBox(height: 30),
-
-            // Fancy preview
-            if (stopsBetween.isNotEmpty)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.access_time, color: Colors.teal),
-                      SizedBox(width: 8),
-                      Text(
-                        "Estimated Time: ",
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      Text(
-                        travelDuration ?? "-- mins",
-                        style: TextStyle(color: Colors.teal.shade700),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.directions, color: Colors.blue),
-                      SizedBox(width: 8),
-                      Text(
-                        "Distance: ",
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      Text(
-                        travelDistance ?? "--",
-                        style: TextStyle(color: Colors.blue.shade700),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 16),
-                  Text(
-                    'Route Preview (${stopsBetween.length} stops):',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 16),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: stopsBetween.length,
-                    itemBuilder: (context, index) {
-                      final stop = stopsBetween[index];
-
-                      final isFirst = index == 0;
-                      final isLast = index == stopsBetween.length - 1;
-
-                      Icon leadingIcon;
-                      TextStyle textStyle = TextStyle(fontSize: 16);
-
-                      if (isFirst) {
-                        leadingIcon = Icon(Icons.flag, color: Colors.green);
-                        textStyle = textStyle.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        );
-                      } else if (isLast) {
-                        leadingIcon = Icon(Icons.flag, color: Colors.red);
-                        textStyle = textStyle.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        );
-                      } else {
-                        leadingIcon = Icon(
-                          Icons.circle,
-                          size: 15,
-                          color: Colors.grey,
-                        );
-                      }
-
-                      return ListTile(
-                        leading: leadingIcon,
-                        title: Text(stop.name, style: textStyle),
-                        subtitle: Text(stop.address),
-                      );
-                    },
-                  ),
-                ],
-              ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String value,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 28),
+        const SizedBox(height: 8),
+        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStopsList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Your Journey Stops:',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[800],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: stopsBetween.length,
+              separatorBuilder:
+                  (_, __) => Divider(height: 1, color: Colors.grey[200]),
+              itemBuilder: (context, index) {
+                final stop = stopsBetween[index];
+                final isFirst = index == 0;
+                final isLast = index == stopsBetween.length - 1;
+
+                return ListTile(
+                  leading: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color:
+                          isFirst
+                              ? Colors.green.withOpacity(0.1)
+                              : isLast
+                              ? Colors.red.withOpacity(0.1)
+                              : Colors.blue.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isFirst
+                          ? Icons.flag_rounded
+                          : isLast
+                          ? Icons.location_pin
+                          : Icons.circle_rounded,
+                      color:
+                          isFirst
+                              ? Colors.green
+                              : isLast
+                              ? Colors.red
+                              : Colors.blue,
+                      size: isFirst || isLast ? 20 : 12,
+                    ),
+                  ),
+                  title: Text(
+                    stop.name,
+                    style: TextStyle(
+                      fontWeight:
+                          isFirst || isLast
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                      color:
+                          isFirst
+                              ? Colors.green[800]
+                              : isLast
+                              ? Colors.red[800]
+                              : Colors.grey[800],
+                    ),
+                  ),
+                  subtitle: Text(
+                    stop.address,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

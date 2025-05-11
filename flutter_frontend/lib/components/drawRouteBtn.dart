@@ -24,13 +24,25 @@ class DrawRouteButton extends StatelessWidget {
       icon: const Icon(Icons.alt_route, size: 20, color: Colors.white),
       label: const Text('SHOW ROUTE'),
       onPressed: () async {
-        context.read<BusRouteProvider>().polylines = await drawRoute(
+        final busRouteProvider = context.read<BusRouteProvider>();
+        final userLocationProvider = context.read<UserLocationProvider>();
+
+        // Clear any old listeners
+        if (busRouteProvider.updateRouteListener != null) {
+          userLocationProvider.removeListener(
+            busRouteProvider.updateRouteListener!,
+          );
+        }
+
+        // Step 1: Draw route
+        busRouteProvider.polylines = await drawRoute(
           endLat: stop.latitude,
           endLon: stop.longitude,
           currentPosition: currentPosition,
         );
 
-        await context.read<BusRouteProvider>().GetDistanceAndDuration(
+        // Step 2: Get distance & duration
+        await busRouteProvider.GetDistanceAndDuration(
           currentPosition.latitude,
           currentPosition.longitude,
           stop.latitude,
@@ -38,28 +50,28 @@ class DrawRouteButton extends StatelessWidget {
           'walking',
         );
 
-        final userLocationProvider = context.read<UserLocationProvider>();
-        final busRouteProvider = context.read<BusRouteProvider>();
+        // Step 3: Update route based on current location
+        LatLng destination = LatLng(stop.latitude, stop.longitude);
+        busRouteProvider.updateRoute(currentPosition, destination);
 
-        LatLng currentPos = userLocationProvider.currentPosition!;
-
-        busRouteProvider.updateRoute(
-          currentPos,
-          LatLng(stop.latitude, stop.longitude),
-        );
-
-        userLocationProvider.addListener(() {
+        // Step 4: Define a listener callback that updates the route
+        void updateRouteCallback() {
           if (userLocationProvider.currentPosition != null) {
             busRouteProvider.updateRoute(
               userLocationProvider.currentPosition!,
-              LatLng(stop.latitude, stop.longitude),
+              destination,
             );
           }
-        });
+        }
+
+        // Step 5: Attach the listener & store it for later removal
+        userLocationProvider.addListener(updateRouteCallback);
+        busRouteProvider.updateRouteListener = updateRouteCallback;
 
         context.read<UserLocationProvider>().setInfoVisible(true);
         Navigator.pop(context);
       },
+
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
