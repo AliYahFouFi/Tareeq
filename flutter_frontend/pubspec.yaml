@@ -47,7 +47,6 @@ dependencies:
   firebase_core: ^3.12.1
   cloud_firestore: ^5.6.5
   pretty_qr_code: ^3.4.0
-  convex_bottom_bar: ^3.2.0
 
 dev_dependencies:
   flutter_test:

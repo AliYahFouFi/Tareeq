@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/models/BusRoute_model.dart';
 
@@ -28,56 +30,67 @@ void showBusRoutesBottomSheet(BuildContext context) async {
 
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
     ),
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
     builder: (context) {
       return Container(
-        decoration: const BoxDecoration(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.6,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Header with close button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Available Bus Routes",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 1,
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Available Bus Routes",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple[800],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.grey[600]),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            const Divider(height: 1),
-            const SizedBox(height: 16),
-
-            // Route list
             Expanded(
-              child: ListView.separated(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: busRoutes.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   var route = busRoutes[index];
-                  return InkWell(
-                    borderRadius: BorderRadius.circular(12),
+                  return GestureDetector(
                     onTap: () async {
-                      Navigator.pop(context);
                       String routeId = route['route_id'].toString();
                       context.read<BusStopsProvider>().setBusStops(
                         await BusStopService.getBusStopsForOneRoute(routeId),
@@ -86,53 +99,105 @@ void showBusRoutesBottomSheet(BuildContext context) async {
                           await generatePolylineForOneRoute(routeId);
                       context.read<BusRouteProvider>().polylines =
                           polylineForOneRoute;
+                      Navigator.pop(context);
                     },
                     child: Container(
+                      margin: EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.deepPurple.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.directions_bus,
-                              color: Colors.deepPurple,
-                            ),
+                        gradient: LinearGradient(
+                          colors: [Colors.deepPurple[50]!, Colors.white],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 3,
+                            offset: Offset(0, 2),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  route['route_name'].toString(),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "${route['first_stop']} → ${route['last_stop']}",
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right, color: Colors.grey),
                         ],
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurple[100],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.directions_bus_rounded,
+                                color: Colors.deepPurple[800],
+                                size: 24,
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    route['route_name'].toString(),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepPurple[900],
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.circle,
+                                        size: 8,
+                                        color: Colors.green,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          route['first_stop'],
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.circle,
+                                        size: 8,
+                                        color: Colors.red,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          route['last_stop'],
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.deepPurple[300],
+                              size: 16,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );

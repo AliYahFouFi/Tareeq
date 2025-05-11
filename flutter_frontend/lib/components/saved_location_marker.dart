@@ -61,60 +61,48 @@ Marker buildSavedPlaceMarker({
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      final busRouteProvider = context.read<BusRouteProvider>();
-                      final userLocationProvider =
-                          context.read<UserLocationProvider>();
-
-                      // Clear any old listeners
-                      if (busRouteProvider.updateRouteListener != null) {
-                        userLocationProvider.removeListener(
-                          busRouteProvider.updateRouteListener!,
-                        );
-                      }
-
-                      // Step 1: Draw route
-                      busRouteProvider.polylines = await drawRoute(
+                      context
+                          .read<BusRouteProvider>()
+                          .polylines = await drawRoute(
                         endLat: place.lat,
                         endLon: place.lng,
                         currentPosition: currentPosition,
                       );
 
-                      // Step 2: Get distance & duration
-                      await busRouteProvider.GetDistanceAndDuration(
-                        currentPosition.latitude,
-                        currentPosition.longitude,
-                        place.lat,
-                        place.lng,
-                        'walking',
-                      );
+                      await context
+                          .read<BusRouteProvider>()
+                          .GetDistanceAndDuration(
+                            currentPosition.latitude,
+                            currentPosition.longitude,
+                            place.lat,
+                            place.lng,
+                            'walking',
+                          );
 
-                      // Step 3: Update route based on current location
-                      LatLng destination = LatLng(place.lat, place.lng);
+                      final userLocationProvider =
+                          context.read<UserLocationProvider>();
+                      final busRouteProvider = context.read<BusRouteProvider>();
+
+                      LatLng currentPos = userLocationProvider.currentPosition!;
+
                       busRouteProvider.updateRoute(
-                        currentPosition,
-                        destination,
+                        currentPos,
+                        LatLng(place.lat, place.lng),
                       );
 
-                      // Step 4: Define a listener callback that updates the route
-                      void updateRouteCallback() {
+                      userLocationProvider.addListener(() {
                         if (userLocationProvider.currentPosition != null) {
                           busRouteProvider.updateRoute(
                             userLocationProvider.currentPosition!,
-                            destination,
+                            LatLng(place.lat, place.lng),
                           );
                         }
-                      }
-
-                      // Step 5: Attach the listener & store it for later removal
-                      userLocationProvider.addListener(updateRouteCallback);
-                      busRouteProvider.updateRouteListener =
-                          updateRouteCallback;
+                      });
 
                       context.read<UserLocationProvider>().setInfoVisible(true);
                       Navigator.pop(context);
                     },
-
-                    icon: Icon(mainButtonIcon, size: 20, color: Colors.white),
+                    icon: Icon(mainButtonIcon, size: 20),
                     label: Text(
                       mainButtonText,
                       style: const TextStyle(fontSize: 16),
