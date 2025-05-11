@@ -26,7 +26,6 @@ Set<Marker> getBusStopMarkers({
       position: LatLng(stop.latitude, stop.longitude),
       infoWindow: InfoWindow(title: stop.name),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-
       onTap: () => _showStopInfoBottomSheet(context, stop),
     );
   }).toSet();
@@ -48,50 +47,38 @@ class _BusStopInfoSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
+      height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 20,
-            spreadRadius: 5,
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 24,
+            spreadRadius: 0,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Header with drag handle
-          Container(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: Center(
-              child: Container(
-                width: 40,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
+          // Drag handle
+          _buildDragHandle(),
 
-          // Header content
+          // Header with stop info
           _buildHeader(context),
 
-          // Main content
+          // Main content area
           Expanded(
-            child: SingleChildScrollView(
+            child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                children: [
-                  // Draw route button
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 24),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                  sliver: SliverToBoxAdapter(
                     child: DrawRouteButton(
                       stop: stop,
                       currentPosition:
@@ -100,11 +87,13 @@ class _BusStopInfoSheet extends StatelessWidget {
                               .currentPosition!,
                     ),
                   ),
+                ),
 
-                  // ETA section
-                  _buildETAInfo(context),
-                ],
-              ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                  sliver: SliverToBoxAdapter(child: _buildETAInfo(context)),
+                ),
+              ],
             ),
           ),
         ],
@@ -112,49 +101,81 @@ class _BusStopInfoSheet extends StatelessWidget {
     );
   }
 
+  Widget _buildDragHandle() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 8),
+      child: Center(
+        child: Container(
+          width: 48,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.grey[400],
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeader(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withOpacity(0.05),
+        color: theme.primaryColor.withOpacity(0.05),
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.1),
+            color: theme.dividerColor.withOpacity(0.1),
             width: 1,
           ),
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Bus icon
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.blue.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.directions_bus,
+              Icons.directions_bus_rounded,
               color: Colors.blue,
               size: 28,
             ),
           ),
+
           const SizedBox(width: 16),
+
+          // Stop info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   stop.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: Colors.blue[800],
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Route: ${stop.routeName}',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+
+                const SizedBox(height: 6),
+
+                Row(
+                  children: [
+                    Icon(Icons.route, size: 16, color: Colors.grey[600]),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Route: ${stop.routeName}',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -169,18 +190,16 @@ class _BusStopInfoSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Section title
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Text(
-            'LIVE BUS ARRIVALS',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-              letterSpacing: 0.5,
-            ),
+        Text(
+          'LIVE BUS ARRIVALS',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
           ),
         ),
+
+        const SizedBox(height: 12),
 
         // Bus ETA content
         FutureBuilder<LatLng?>(
@@ -201,17 +220,12 @@ class _BusStopInfoSheet extends StatelessWidget {
       stream: FirebaseFirestore.instance.collection('busses').snapshots(),
       builder: (context, busesSnapshot) {
         if (busesSnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return _buildLoadingIndicator();
         }
 
         if (!busesSnapshot.hasData || busesSnapshot.data!.docs.isEmpty) {
           return _buildInfoCard(
-            icon: Icons.error_outline,
+            icon: Icons.error_outline_rounded,
             color: Colors.orange,
             text: 'No buses currently available',
           );
@@ -229,7 +243,7 @@ class _BusStopInfoSheet extends StatelessWidget {
 
         if (buses.isEmpty) {
           return _buildInfoCard(
-            icon: Icons.directions_bus,
+            icon: Icons.directions_bus_rounded,
             color: Colors.orange,
             text: 'No active buses on this route',
           );
@@ -260,6 +274,31 @@ class _BusStopInfoSheet extends StatelessWidget {
     );
   }
 
+  Widget _buildLoadingIndicator() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Loading bus information...',
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildBusETAItem(
     BuildContext context,
     String busId,
@@ -278,8 +317,8 @@ class _BusStopInfoSheet extends StatelessWidget {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -289,10 +328,7 @@ class _BusStopInfoSheet extends StatelessWidget {
             ],
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
+            contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             leading: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -300,7 +336,7 @@ class _BusStopInfoSheet extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.directions_bus,
+                Icons.directions_bus_rounded,
                 color: Colors.blue,
                 size: 24,
               ),
@@ -331,56 +367,56 @@ class _BusStopInfoSheet extends StatelessWidget {
 
   Widget _buildETAStatus(AsyncSnapshot<Map<String, String>> snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {
-      return Row(
-        children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'Calculating...',
-            style: TextStyle(color: Colors.grey[600], fontSize: 13),
-          ),
-        ],
+      return _buildStatusRow(
+        icon: Icons.timelapse_rounded,
+        color: Colors.grey,
+        text: 'Calculating ETA...',
       );
     }
 
     if (!snapshot.hasData) {
-      return Row(
-        children: [
-          Icon(Icons.error_outline, color: Colors.red[400], size: 16),
-          const SizedBox(width: 6),
-          Text(
-            'ETA unavailable',
-            style: TextStyle(color: Colors.grey[600], fontSize: 13),
-          ),
-        ],
+      return _buildStatusRow(
+        icon: Icons.error_outline_rounded,
+        color: Colors.red,
+        text: 'ETA unavailable',
       );
     }
 
+    return Column(
+      children: [
+        _buildStatusRow(
+          icon: Icons.timer_rounded,
+          color: Colors.green,
+          text: 'ETA: ${snapshot.data!['duration']}',
+          isBold: true,
+        ),
+        const SizedBox(height: 6),
+        _buildStatusRow(
+          icon: Icons.alt_route_rounded,
+          color: Colors.blue,
+          text: '${snapshot.data!['distance']} away',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusRow({
+    required IconData icon,
+    required Color color,
+    required String text,
+    bool isBold = false,
+  }) {
     return Row(
       children: [
-        Icon(Icons.timer, color: Colors.green[600], size: 16),
-        const SizedBox(width: 6),
+        Icon(icon, color: color, size: 16),
+        const SizedBox(width: 8),
         Text(
-          'ETA: ${snapshot.data!['duration']}',
+          text,
           style: TextStyle(
-            color: Colors.green[600],
-            fontWeight: FontWeight.w500,
+            color: color,
             fontSize: 13,
+            fontWeight: isBold ? FontWeight.w500 : FontWeight.normal,
           ),
-        ),
-        const SizedBox(width: 16),
-        Icon(Icons.alt_route, color: Colors.blue[400], size: 16),
-        const SizedBox(width: 6),
-        Text(
-          '${snapshot.data!['distance']} away',
-          style: TextStyle(color: Colors.grey[600], fontSize: 13),
         ),
       ],
     );
@@ -397,15 +433,22 @@ class _BusStopInfoSheet extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withOpacity(0.2), width: 1),
       ),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 20),
+          Icon(icon, color: color, size: 22),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(text, style: TextStyle(color: color, fontSize: 14)),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),

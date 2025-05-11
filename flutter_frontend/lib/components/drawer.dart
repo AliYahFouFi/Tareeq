@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/login.dart';
+import 'package:flutter_frontend/pages/SavedPlacesPage.dart';
 import 'package:flutter_frontend/pages/TicketPage.dart';
 import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
@@ -169,7 +170,7 @@ class _AppDrawerState extends State<AppDrawer> {
               children: [
                 _buildDrawerItem(
                   icon: Icons.directions_bus,
-                  title: 'Bus Routes',
+                  title: 'Show All Bus Routes',
                   onTap: () async {
                     Navigator.pop(context);
                     busRouteProvider.polylines = await initializeAllPolylines();
@@ -189,8 +190,14 @@ class _AppDrawerState extends State<AppDrawer> {
                 ),
                 _buildDrawerItem(
                   icon: Icons.favorite,
-                  title: 'Saved Routes',
-                  onTap: () => Navigator.pushNamed(context, '/saved_routes'),
+                  title: 'Saved Places',
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SavedPlacesPage(),
+                        ),
+                      ),
                 ),
                 _buildDrawerItem(
                   icon: Icons.settings,

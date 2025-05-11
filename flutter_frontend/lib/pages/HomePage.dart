@@ -16,7 +16,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_frontend/util/polyline_util.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final LatLng? initialZoomPosition;
+
+  const HomePage({super.key, this.initialZoomPosition}); // Add the constructor
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -98,6 +100,8 @@ class _HomePageState extends State<HomePage> {
               onMapCreated: (GoogleMapController controller) {
                 _mapController = controller;
               },
+              initialZoomPosition:
+                  widget.initialZoomPosition, // Pass the initialZoomPosition
             ),
           ),
 
