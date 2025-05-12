@@ -7,9 +7,7 @@ use App\Models\BusStop;
 
 class BusStopController extends Controller
 {
-
-
-    //get all bus stops
+    // API endpoint for mobile app
     public function getAllStops()
     {
         $bus_stops = BusStop::with(['routes'])->get();
@@ -21,17 +19,23 @@ class BusStopController extends Controller
                 'address' => $stop->address,
                 'latitude' => $stop->latitude,
                 'longitude' => $stop->longitude,
-                'route' => $stop->routess->first()?->name ?? 'Unknown', // Get the first route name
+                'route' => $stop->routess->first()?->name ?? 'Unknown',
             ];
         });
 
         return response()->json($bus_stops);
     }
 
+    // Admin Panel Methods
+    public function index()
+    {
+        $stops = BusStop::withCount('routes')->get();
+        return view('admin.stops', compact('stops'));
+    }
 
     public function create()
     {
-        return view('bus_stops.create');
+        return view('admin.stops.create');
     }
 
     public function store(Request $request)
@@ -39,62 +43,47 @@ class BusStopController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
 
         BusStop::create($request->all());
 
-        return redirect()->route('bus_stops.create')->with('success', 'Bus Stop added successfully!');
+        return redirect()->route('admin.stops')->with('success', 'Bus stop created successfully!');
     }
 
-    public function showAllStops()
-    {
-        $stops = BusStop::all();
-        return view('admin.stops', compact('stops'));
-    }
     public function edit($id)
     {
         $stop = BusStop::findOrFail($id);
-        return view('stops-edit', compact('stop'));
+        return view('admin.stops.edit', compact('stop'));
     }
+
     public function update(Request $request, $id)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        $bus_stop = BusStop::findOrFail($id);
-        $bus_stop->update($request->all());
+        $stop = BusStop::findOrFail($id);
+        $stop->update($request->all());
 
-        return redirect()->route('admin-stops.index')->with('success', 'Bus Stop updated successfully!');
+        return redirect()->route('admin.stops')->with('success', 'Bus stop updated successfully!');
     }
-
 
     public function destroy($id)
     {
-        $bus_stop = BusStop::findOrFail($id);
-        $bus_stop->delete();
+        $stop = BusStop::findOrFail($id);
 
-        return redirect()->route('admin-stops.index')->with('success', 'Bus Stop deleted successfully!');
-    }
+        // Check if stop is used in any routes
+        if ($stop->routes()->exists()) {
+            return redirect()->route('admin.stops')
+                ->with('error', 'Cannot delete this stop as it is being used in one or more routes. Please remove it from all routes first.');
+        }
 
-
-    public function show($id)
-    {
-        $bus_stop = BusStop::findOrFail($id);
-        return view('bus_stops.show', compact('bus_stop'));
-    }
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-        $bus_stops = BusStop::where('name', 'LIKE', "%{$query}%")
-            ->orWhere('address', 'LIKE', "%{$query}%")
-            ->get();
-
-        return response()->json($bus_stops);
+        $stop->delete();
+        return redirect()->route('admin.stops')->with('success', 'Bus stop deleted successfully!');
     }
 }
