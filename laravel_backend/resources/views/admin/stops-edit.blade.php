@@ -4,7 +4,7 @@
 @section('title', 'Edit Stop')
 
 @section('content')
-    <form action="{{ route('admin-stops.update', $stop->id) }}" method="POST">
+    <form action="{{ route('admin.stops.update', $stop->id) }}" method="POST">
         @csrf
         @method('PUT')
 

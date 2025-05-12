@@ -25,7 +25,7 @@
 
 
 
-            <a href="{{ route('admin-stops.index') }}"
+            <a href="{{ route('admin.stops') }}"
                 class="flex items-center px-4 py-2 rounded-md text-gray-700 hover:bg-green-50 hover:text-green-600 transition">
                 🛑 <span class="ml-2">Stops</span>
             </a>
