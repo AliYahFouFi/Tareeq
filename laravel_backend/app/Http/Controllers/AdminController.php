@@ -44,7 +44,7 @@ class AdminController extends Controller
         $activities = collect();
 
         // Add recent routes
-        $recentRoutes = BusRoute::latest()->take(3)->get()->map(function($route) {
+        $recentRoutes = BusRoute::latest()->take(3)->get()->map(function ($route) {
             return (object)[
                 'action' => 'Route Added',
                 'description' => "New route '{$route->name}' was created",
@@ -54,7 +54,7 @@ class AdminController extends Controller
         $activities = $activities->concat($recentRoutes);
 
         // Add recent stops
-        $recentStops = BusStop::latest()->take(3)->get()->map(function($stop) {
+        $recentStops = BusStop::latest()->take(3)->get()->map(function ($stop) {
             return (object)[
                 'action' => 'Stop Added',
                 'description' => "New stop '{$stop->name}' was created",

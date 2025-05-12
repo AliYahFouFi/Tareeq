@@ -13,7 +13,7 @@ Route::get('/', function () {
 Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    
+
     // Route Management
     Route::get('/routes', [BusRouteController::class, 'index'])->name('routes');
     Route::get('/routes/create', [BusRouteController::class, 'create'])->name('routes.create');
