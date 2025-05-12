@@ -25,7 +25,7 @@ Set<Marker> getBusStopMarkers({
       markerId: MarkerId(stop.id.toString()),
       position: LatLng(stop.latitude, stop.longitude),
       infoWindow: InfoWindow(title: stop.name),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      icon: icon,
       onTap: () => _showStopInfoBottomSheet(context, stop),
     );
   }).toSet();

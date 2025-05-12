@@ -31,7 +31,7 @@ class BusStopsProvider extends ChangeNotifier {
   Future<BitmapDescriptor> getBusStopIcon() async {
     // ignore: deprecated_member_use
     return await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(5, 5)),
+      const ImageConfiguration(size: Size(1, 1)),
       'assets/bus_stop.png',
     );
   }
