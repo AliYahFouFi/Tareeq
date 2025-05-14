@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BusStopController;
 use App\Http\Controllers\BusRouteController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\TestFirestoreController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +34,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Other admin routes
     Route::view('/drivers', 'admin.drivers')->name('drivers');
-    Route::view('/users', 'admin.users')->name('users');
     Route::view('/payments', 'admin.payments')->name('payments');
+
+    // User Management
+    Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 });
+
+
+
+//firestore test
+Route::get('/firestore', [TestFirestoreController::class, 'index']);
+Route::post('/firestore', [TestFirestoreController::class, 'store']);
