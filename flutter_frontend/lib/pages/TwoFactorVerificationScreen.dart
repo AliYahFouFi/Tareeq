@@ -47,11 +47,14 @@ class _TwoFactorVerificationScreenState extends State<TwoFactorVerificationScree
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+ @override
+Widget build(BuildContext context) {
+  return WillPopScope(
+    onWillPop: () async => false, // 🔒 Prevent Android back button
+    child: Scaffold(
       appBar: AppBar(
         title: const Text('Two-Factor Authentication'),
+        automaticallyImplyLeading: false, // 🔒 Remove back arrow
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -83,7 +86,7 @@ class _TwoFactorVerificationScreenState extends State<TwoFactorVerificationScree
                 decoration: const InputDecoration(
                   labelText: "Enter the 6-digit code",
                   border: OutlineInputBorder(),
-                  counterText: '', // Hide counter
+                  counterText: '',
                   prefixIcon: Icon(Icons.lock_outline),
                 ),
               ),
@@ -106,6 +109,8 @@ class _TwoFactorVerificationScreenState extends State<TwoFactorVerificationScree
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

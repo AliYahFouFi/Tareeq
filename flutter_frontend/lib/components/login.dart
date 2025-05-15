@@ -35,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
             builder: (context) => QRCodeScreen(
               qrCodeData: authProvider.qrCodeData,
               token: authProvider.userToken,
+              secret: authProvider.secret,
             ),
           ),
         );

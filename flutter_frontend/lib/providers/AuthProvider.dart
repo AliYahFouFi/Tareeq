@@ -3,6 +3,7 @@ import 'package:flutter_frontend/components/snackbar_helper.dart';
 import 'package:flutter_frontend/models/User_model.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
 import 'package:flutter_frontend/pages/QRCodeScreen.dart';
+import 'package:flutter_frontend/pages/TwoFactorVerificationScreen.dart';
 import 'package:flutter_frontend/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,13 +14,15 @@ class AuthProvider with ChangeNotifier {
   String userId = '';
   bool _is2FAEnabled = false;
   String _userToken = '';
-  String _qrCodeData = ''; // Move this field declaration above the getter
+  String _qrCodeData = '';
+  String _secret = ''; // Move this field declaration above the getter
 
   bool get isLoggedIn => _isLoggedIn;
   String get selectedRole => _selectedRole;
   bool get is2FAEnabled => _is2FAEnabled;
   String get userToken => _userToken;
   String get qrCodeData => _qrCodeData;
+  String get secret => _secret;
 
   AuthProvider() {
     checkIfLoggedIn();
@@ -61,6 +64,7 @@ class AuthProvider with ChangeNotifier {
         if (data != null) {
           // Save QR code data to provider state
           _qrCodeData = data['qrcode_data'];
+          _secret  = data['secret'];
         } else {
           CustomSnackBar.showError(
             message: "Failed to enable 2FA!",
@@ -87,40 +91,72 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> register(
-    String name,
-    String email,
-    String password,
-    BuildContext context,
-  ) async {
-    notifyListeners();
+Future<void> register(
+  String name,
+  String email,
+  String password,
+  BuildContext context,
+) async {
+  notifyListeners();
 
-    bool isRegistered = await ApiService.register(
-      name,
-      email,
-      password,
-      _selectedRole,
+  bool isRegistered = await ApiService.register(
+    name,
+    email,
+    password,
+    _selectedRole,
+  );
+
+  if (isRegistered) {
+    CustomSnackBar.showSuccess(
+      message: "Registration successful!",
+      context: context,
     );
 
-    if (isRegistered) {
-      CustomSnackBar.showSuccess(
-        message: "Registration successful!",
-        context: context,
-      );
+    // Call login
+    bool isLoggedIn = await login(email, password, context);
 
-      _isLoggedIn = true;
-      notifyListeners();
-    } else {
-      {
-        CustomSnackBar.showError(
-          message: "Registration failed! Please check your credentials.",
-          context: context,
+    if (isLoggedIn) {
+      // ✅ After login, check if 2FA is enabled
+      if (!_is2FAEnabled) {
+        // Navigate to QRCodeScreen for setup
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QRCodeScreen(
+              qrCodeData: _qrCodeData,
+              token: _userToken,
+              secret: _secret,
+            ),
+          ),
+        );
+      } else {
+        // If already enabled, still go to verification screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TwoFactorVerificationScreen(
+              token: _userToken,
+            ),
+          ),
         );
       }
+    } else {
+      CustomSnackBar.showError(
+        message: "Login after registration failed!",
+        context: context,
+      );
     }
-    login(email, password, context);
-    notifyListeners();
+  } else {
+    CustomSnackBar.showError(
+      message: "Registration failed! Please check your credentials.",
+      context: context,
+    );
   }
+
+  notifyListeners();
+}
+
+
 
   Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
