@@ -6,13 +6,14 @@ use App\Http\Controllers\BusRouteController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestFirestoreController;
+require __DIR__.'/auth.php';
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 // Admin Dashboard Group
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 

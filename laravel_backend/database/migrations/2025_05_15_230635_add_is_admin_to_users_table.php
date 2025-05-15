@@ -12,19 +12,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('google2fa_secret')->nullable();
-            $table->boolean('is_2fa_enabled')->default(false);
+            $table->boolean('is_admin')->default(false);
         });
     }
-    
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('is_admin');
         });
     }
+
 };

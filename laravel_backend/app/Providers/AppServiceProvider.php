@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    public const HOME = '/admin/dashboard';
+
     /**
      * Register any application services.
      */
