@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestFirestoreController;
 use App\Http\Controllers\BusController;
+use App\Http\Controllers\DriverController;
 
 require __DIR__ . '/auth.php';
 
@@ -35,9 +36,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/stops/{id}', [BusStopController::class, 'update'])->name('stops.update');
     Route::delete('/stops/{id}', [BusStopController::class, 'destroy'])->name('stops.destroy');
 
-    // Other admin routes
-    Route::view('/drivers', 'admin.drivers')->name('drivers');
-    Route::view('/payments', 'admin.payments')->name('payments');
+
 
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users');
@@ -47,7 +46,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
-
+    // Driver Management
+    Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
+    Route::get('/drivers/create', [DriverController::class, 'create'])->name('drivers.create');
+    Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.store');
+    Route::get('/drivers/{id}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
+    Route::put('/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
+    Route::delete('/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
 
     // Bus Management
     Route::get('/buses', [BusController::class, 'index'])->name('buses.index');
@@ -56,6 +61,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/buses/{id}/edit', [BusController::class, 'edit'])->name('buses.edit');
     Route::put('/buses/{id}', [BusController::class, 'update'])->name('buses.update');
     Route::delete('/buses/{id}', [BusController::class, 'destroy'])->name('buses.destroy');
+
+
+
+    // Other admin routes
+
+    Route::view('/payments', 'admin.payments')->name('payments');
 });
 
 

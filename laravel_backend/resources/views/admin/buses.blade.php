@@ -50,13 +50,20 @@
                             @endif
                         </td>
                         <td class="px-4 py-3 text-xs">{{ $bus['latitude'] }}, {{ $bus['longitude'] }}</td>
-                        {{-- <td class="px-4 py-3">{{ $bus['driver'] ?? 'N/A' }}</td> --}}
+                        <td class="px-4 py-3">{{ $bus['driver_name'] }}</td>
                         <td class="px-4 py-3">{{ $bus['routeName'] }}</td>
                         <td class="px-4 py-3 text-xs text-gray-500">
                             {{ \Carbon\Carbon::parse($bus['last_updated'])->diffForHumans() }}</td>
                         <td class="px-4 py-3 space-x-2">
-                            <a href="#" class="text-blue-600 hover:underline text-sm">Edit</a>
-                            <a href="#" class="text-red-600 hover:underline text-sm">Delete</a>
+                            <a href="{{ route('admin.buses.edit', $bus['id']) }}"
+                                class="text-blue-600 hover:underline text-sm">Edit</a>
+                            <form action="{{ route('admin.buses.destroy', $bus['id']) }}" method="POST"
+                                class="inline-block"
+                                onsubmit="return confirm('Are you sure you want to delete this bus?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 @endforeach

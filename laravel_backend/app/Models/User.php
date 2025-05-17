@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role', // Ensure this is included
+        'busId', // Ensure this is included
 
     ];
 
