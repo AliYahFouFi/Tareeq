@@ -15,6 +15,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+
+
 // Admin Dashboard Group
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Dashboard
@@ -35,8 +38,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/stops/{id}/edit', [BusStopController::class, 'edit'])->name('stops.edit');
     Route::put('/stops/{id}', [BusStopController::class, 'update'])->name('stops.update');
     Route::delete('/stops/{id}', [BusStopController::class, 'destroy'])->name('stops.destroy');
-
-
 
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users');
