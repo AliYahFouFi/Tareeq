@@ -51,6 +51,7 @@ class ApiService {
         role: data['role'],
         token: data['token'],
         is2FAEnabled: data['is_2fa_enabled'] == 1,
+        busId: data['busId'],
       );
     } else {
       return null;
@@ -72,7 +73,8 @@ class ApiService {
 
         return {
           'secret': data['secret'],
-          'qrcode_data': data['qrcode_data'] // Make sure this matches your backend field
+          'qrcode_data':
+              data['qrcode_data'], // Make sure this matches your backend field
         };
       } else {
         print("Enable 2FA failed: ${response.statusCode} - ${response.body}");
@@ -84,7 +86,6 @@ class ApiService {
     }
   }
 
-
   static Future<bool> verify2FA(String token, String code) async {
     try {
       final response = await http.post(
@@ -92,16 +93,16 @@ class ApiService {
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
-          "Content-Type": "application/json",  // Important!
+          "Content-Type": "application/json", // Important!
         },
-        body: jsonEncode({
-          "code": code,
-        }),
+        body: jsonEncode({"code": code}),
       );
       if (response.statusCode == 200) {
         return true;
       } else {
-        print("2FA verification failed: ${response.statusCode} - ${response.body}");
+        print(
+          "2FA verification failed: ${response.statusCode} - ${response.body}",
+        );
         return false;
       }
     } catch (e) {

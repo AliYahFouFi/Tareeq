@@ -5,6 +5,7 @@ class User {
   final String role;
   final String token;
   final bool is2FAEnabled;
+  final String busId;
 
   User({
     required this.id,
@@ -13,15 +14,17 @@ class User {
     required this.role,
     required this.token,
     required this.is2FAEnabled,
+    this.busId = '', // Make busId optional with default empty string
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] ?? '0', // Default to 0 if null
-      name: json['name'] ?? 'Unknown', // Default to 'Unknown' if null
-      email: json['email'] ?? '', // Default to empty string if null
-      role: json['role'] ?? 'user', // Default to 'Unknown' if null
+      id: json['id']?.toString() ?? '0',
+      name: json['name'] ?? 'Unknown',
+      email: json['email'] ?? '',
+      role: json['role'] ?? 'user',
       token: json['token'] ?? '',
+      busId: json['busId']?.toString() ?? '', // Handle null bus_id
       is2FAEnabled: json['is_2fa_enabled'] == 1,
     );
   }

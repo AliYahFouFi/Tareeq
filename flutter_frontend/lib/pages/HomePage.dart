@@ -130,6 +130,10 @@ class _HomePageState extends State<HomePage> {
 
                     child: FloatingActionButton.extended(
                       onPressed: () {
+                        print("Bus ID: $_busId");
+
+                        // Toggle the bus status
+
                         if (provider.isActive) {
                           provider.stopLocationUpdates(_busId);
                         } else {
@@ -169,18 +173,12 @@ class _HomePageState extends State<HomePage> {
     final token = prefs.getString('token');
     final role = prefs.getString('role');
     final id = prefs.getString('id');
-    if (token != null && role != null) {
-      setState(() {
-        _isLoggedIn = true;
-        _isDriver = role == 'driver';
-        _busId = id!;
-      });
-    } else {
-      setState(() {
-        _isLoggedIn = false;
-        _isDriver = false;
-        _busId = '';
-      });
-    }
+    final busId = prefs.getString('busId');
+
+    setState(() {
+      _isLoggedIn = token != null && role != null;
+      _isDriver = role == 'driver';
+      _busId = busId ?? ''; // Use empty string if busId is null
+    });
   }
 }

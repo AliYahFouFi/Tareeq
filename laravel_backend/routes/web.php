@@ -6,7 +6,9 @@ use App\Http\Controllers\BusRouteController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestFirestoreController;
-require __DIR__.'/auth.php';
+use App\Http\Controllers\BusController;
+
+require __DIR__ . '/auth.php';
 
 Route::get('/', function () {
     return view('welcome');
@@ -44,6 +46,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+
+
+
+    // Bus Management
+    Route::get('/buses', [BusController::class, 'index'])->name('buses.index');
+    Route::get('/buses/create', [BusController::class, 'create'])->name('buses.create');
+    Route::post('/buses', [BusController::class, 'store'])->name('buses.store');
+    Route::get('/buses/{id}/edit', [BusController::class, 'edit'])->name('buses.edit');
+    Route::put('/buses/{id}', [BusController::class, 'update'])->name('buses.update');
+    Route::delete('/buses/{id}', [BusController::class, 'destroy'])->name('buses.destroy');
 });
 
 
