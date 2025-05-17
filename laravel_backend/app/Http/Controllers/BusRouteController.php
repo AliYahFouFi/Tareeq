@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\BusRoute;
 use App\Models\BusStop;
+use App\Services\ActivityService;
 
 class BusRouteController extends Controller
 {
+    protected $activityService;
+
+    public function __construct(ActivityService $activityService)
+    {
+        $this->activityService = $activityService;
+    }
+
     public function index()
     {
         $routes = BusRoute::with('stops')->get()->map(function ($route) {
@@ -46,6 +54,15 @@ class BusRouteController extends Controller
             $route->stops()->attach($stopId, ['order' => $index]);
         }
 
+        $this->activityService->log(
+            'route',
+            'created',
+            "New route '{$route->name}' was created",
+            $route->id,
+            'BusRoute',
+            $route->name
+        );
+
         return redirect()->route('admin.routes')->with('success', 'Route created successfully!');
     }
 
@@ -81,7 +98,18 @@ class BusRouteController extends Controller
     public function destroy($id)
     {
         $route = BusRoute::findOrFail($id);
+        $routeName = $route->name;
         $route->delete();
+
+        $this->activityService->log(
+            'route',
+            'deleted',
+            "Route '{$routeName}' was deleted",
+            $id,
+            'BusRoute',
+            $routeName
+        );
+
         return redirect()->route('admin.routes')->with('success', 'Route deleted successfully!');
     }
 

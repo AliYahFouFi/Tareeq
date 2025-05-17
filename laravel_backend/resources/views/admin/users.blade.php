@@ -1,79 +1,76 @@
 @extends('layouts.admin')
 
-@section('title')
-    <h1 class="text-2xl font-semibold text-gray-900">Users Management</h1>
-@endsection
+@section('title', 'Users Management')
 
 @section('content')
-    <div class="container mx-auto px-4">
-        @if (session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
-        @endif
-
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-gray-800">User List</h2>
-                <a href="{{ route('admin.users.create') }}"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    + Add New User
-                </a>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($users as $user)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span
-                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        {{ $user->role === 'driver' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
-                                        {{ ucfirst($user->role) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <a href="{{ route('admin.users.edit', $user->id) }}"
-                                        class="text-blue-600 hover:text-blue-900">Edit</a>
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
-                                        class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 ml-2"
-                                            onclick="return confirm('Are you sure you want to delete this user?')">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" colspan="5">
-                                    No users found.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    @if (session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
         </div>
+    @endif
+
+    @if (session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
+    <h1 class="text-2xl font-bold text-blue-600 mb-6">👥 Users Management</h1>
+
+    <!-- Add new user button -->
+    <a href="{{ route('admin.users.create') }}"
+        class="bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block hover:bg-blue-700 transition">
+        + Add New User
+    </a>
+
+    <!-- Users Table -->
+    <div class="bg-white rounded shadow overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100 text-left">
+                <tr>
+                    <th class="px-4 py-2">User ID</th>
+                    <th class="px-4 py-2">Name</th>
+                    <th class="px-4 py-2">Email</th>
+                    <th class="px-4 py-2">Role</th>
+                    <th class="px-4 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm divide-y divide-gray-200">
+                @foreach ($users as $user)
+                    <tr>
+                        <td class="px-4 py-2">{{ $user->id }}</td>
+                        <td class="px-4 py-2">{{ $user->name }}</td>
+                        <td class="px-4 py-2">{{ $user->email }}</td>
+                        <td class="px-4 py-2">
+                            <span
+                                class="px-2 py-1 text-xs font-semibold rounded-full 
+                                {{ $user->role === 'driver' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
+                                {{ ucfirst($user->role) }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 space-x-2">
+                            <a href="{{ route('admin.users.edit', $user->id) }}"
+                                class="text-blue-600 hover:underline">Edit</a>
+                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:underline"
+                                    onclick="return confirm('Are you sure you want to delete this user?')">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+
+                @if (count($users) === 0)
+                    <tr>
+                        <td colspan="5" class="px-4 py-2 text-center text-gray-500">
+                            No users found. Click "Add New User" to create one.
+                        </td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
     </div>
 @endsection

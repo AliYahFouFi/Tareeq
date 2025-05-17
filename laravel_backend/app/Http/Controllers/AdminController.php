@@ -6,8 +6,10 @@ use App\Models\BusRoute;
 use App\Models\BusStop;
 use App\Models\User;
 use App\Models\Ticket;
+use App\Models\Activity;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Services\FirestoreService;
 
 class AdminController extends Controller
 {
@@ -40,28 +42,17 @@ class AdminController extends Controller
 
     private function getRecentActivity()
     {
-        // Collect recent activities from various models
-        $activities = collect();
-
-        // Add recent routes
-        $recentRoutes = BusRoute::latest()->take(3)->get()->map(function ($route) {
-            return (object)[
-                'action' => 'Route Added',
-                'description' => "New route '{$route->name}' was created",
-                'created_at' => $route->created_at
-            ];
-        });
-        $activities = $activities->concat($recentRoutes);
-
-        // Add recent stops
-        $recentStops = BusStop::latest()->take(3)->get()->map(function ($stop) {
-            return (object)[
-                'action' => 'Stop Added',
-                'description' => "New stop '{$stop->name}' was created",
-                'created_at' => $stop->created_at
-            ];
-        });
-        $activities = $activities->concat($recentStops);
+        return Activity::latest()
+            ->take(10)
+            ->get()
+            ->map(function ($activity) {
+                return (object)[
+                    'action' => ucfirst($activity->action),
+                    'description' => $activity->description,
+                    'created_at' => $activity->created_at,
+                    'type' => $activity->type
+                ];
+            });
 
         // Sort by created_at and take the 5 most recent activities
         return $activities->sortByDesc('created_at')->take(5);

@@ -4,9 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BusStop;
+use App\Services\ActivityService;
 
 class BusStopController extends Controller
 {
+    protected $activityService;
+
+    public function __construct(ActivityService $activityService)
+    {
+        $this->activityService = $activityService;
+    }
+
     // API endpoint for mobile app
     public function getAllStops()
     {
@@ -47,7 +55,16 @@ class BusStopController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        BusStop::create($request->all());
+        $stop = BusStop::create($request->all());
+
+        $this->activityService->log(
+            'stop',
+            'created',
+            "New stop '{$stop->name}' was created",
+            $stop->id,
+            'BusStop',
+            $stop->name
+        );
 
         return redirect()->route('admin.stops')->with('success', 'Bus stop created successfully!');
     }
@@ -83,7 +100,18 @@ class BusStopController extends Controller
                 ->with('error', 'Cannot delete this stop as it is being used in one or more routes. Please remove it from all routes first.');
         }
 
+        $stopName = $stop->name;
         $stop->delete();
+
+        $this->activityService->log(
+            'stop',
+            'deleted',
+            "Stop '{$stopName}' was deleted",
+            $id,
+            'BusStop',
+            $stopName
+        );
+
         return redirect()->route('admin.stops')->with('success', 'Bus stop deleted successfully!');
     }
 }

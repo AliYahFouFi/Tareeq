@@ -3,11 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\ActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    protected $activityService;
+
+    public function __construct(ActivityService $activityService)
+    {
+        $this->activityService = $activityService;
+    }
+
     public function index()
     {
         $users = User::all();
@@ -28,12 +36,21 @@ class UserController extends Controller
             'role' => 'required|in:user,driver',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
+
+        $this->activityService->log(
+            'user',
+            'created',
+            "New {$user->role} '{$user->name}' was created",
+            $user->id,
+            'User',
+            $user->name
+        );
 
         return redirect()->route('admin.users')->with('success', 'User created successfully!');
     }
@@ -73,7 +90,18 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        $userName = $user->name;
+        $userRole = $user->role;
         $user->delete();
+
+        $this->activityService->log(
+            'user',
+            'deleted',
+            "{$userRole} '{$userName}' was deleted",
+            $id,
+            'User',
+            $userName
+        );
 
         return redirect()->route('admin.users')->with('success', 'User deleted successfully!');
     }

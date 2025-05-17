@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\FirestoreService; // if you put Firestore logic in a separate service
+use App\Services\ActivityService;
 use Carbon\Carbon;
 
 class BusController extends Controller
 {
     protected $firestore;
+    protected $activityService;
 
-    public function __construct(FirestoreService $firestore)
+    public function __construct(FirestoreService $firestore, ActivityService $activityService)
     {
         $this->firestore = $firestore;
+        $this->activityService = $activityService;
     }
 
     public function create()
@@ -27,25 +30,32 @@ class BusController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'registered_number' => 'required|string',
+            'registered_number' => 'required|string|unique:firebase.busses',
             'routeName' => 'required|string',
-            // 'latitude' => 'required|numeric',
-            // 'longitude' => 'required|numeric',
-            'active' => 'required|in:0,1',  // validate active as string "0" or "1"
+            'active' => 'required|in:0,1',
         ]);
-        // 33.89643959497829, 35.56445115023338
+
         $data = [
             'registered_number' => $validated['registered_number'],
             'routeName' => $validated['routeName'],
             'latitude' => 33.89643959497829,
             'longitude' => 35.56445115023338,
-            'active' => $validated['active'] === '1',  // cast to boolean true or false
-            'last_updated' => now()->toIso8601String(),  // store timestamp as ISO string
+            'active' => $validated['active'] === '1',
+            'last_updated' => now()->toIso8601String(),
             'timestamp' => now()->toIso8601String(),
         ];
 
         // Pass registered_number as document ID
         $this->firestore->createDocument('busses', $data, $validated['registered_number']);
+
+        $this->activityService->log(
+            'bus',
+            'created',
+            "New bus '{$validated['registered_number']}' was created",
+            $validated['registered_number'],
+            'Bus',
+            $validated['registered_number']
+        );
 
         return redirect()->route('admin.buses.index')->with('success', 'Bus added successfully!');
     }
@@ -146,7 +156,22 @@ class BusController extends Controller
 
     public function destroy($id)
     {
+        // Get bus details before deletion for activity logging
+        $busDoc = $this->firestore->getDocument('busses', $id);
+        $busNumber = isset($busDoc['fields']['registered_number']['stringValue'])
+            ? $busDoc['fields']['registered_number']['stringValue']
+            : $id;
+
         $this->firestore->deleteDocument('busses', $id);
+
+        $this->activityService->log(
+            'bus',
+            'deleted',
+            "Bus '{$busNumber}' was deleted",
+            $id,
+            'Bus',
+            $busNumber
+        );
 
         return redirect()->route('admin.buses.index')->with('success', 'Bus deleted successfully!');
     }
