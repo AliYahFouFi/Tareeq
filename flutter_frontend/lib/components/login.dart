@@ -15,7 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   bool isLoginMode = true;
   final List<String> roles = ['user', 'driver'];
 
@@ -32,11 +33,12 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => QRCodeScreen(
-              qrCodeData: authProvider.qrCodeData,
-              token: authProvider.userToken,
-              secret: authProvider.secret,
-            ),
+            builder:
+                (context) => QRCodeScreen(
+                  qrCodeData: authProvider.qrCodeData,
+                  token: authProvider.userToken,
+                  secret: authProvider.secret,
+                ),
           ),
         );
       } else {
@@ -44,9 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => TwoFactorVerificationScreen(
-              token: authProvider.userToken,
-            ),
+            builder:
+                (context) =>
+                    TwoFactorVerificationScreen(token: authProvider.userToken),
           ),
         );
       }
@@ -128,48 +130,48 @@ class _LoginScreenState extends State<LoginScreen> {
                               icon: Icons.lock_outline,
                               obscureText: true,
                             ),
-                          if (!isLoginMode)
-                            Container(
-                              margin: EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: DropdownButtonFormField<String>(
-                                  value: authProvider.selectedRole,
-                                  dropdownColor: Color(0xFF0D47A1),
-                                  style: TextStyle(color: Colors.white),
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    labelText: "Select Role",
-                                    labelStyle: TextStyle(
-                                      color: Colors.white70,
-                                    ),
-                                    icon: Icon(
-                                      Icons.people_outline,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                  items:
-                                      roles.map((String role) {
-                                        return DropdownMenuItem<String>(
-                                          value: role,
-                                          child: Text(
-                                            role.toUpperCase(),
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                  onChanged: (newValue) {
-                                    authProvider.setSelectedRole(newValue!);
-                                  },
-                                ),
-                              ),
-                            ),
+                          // if (!isLoginMode)
+                          // Container(
+                          //   margin: EdgeInsets.only(bottom: 20),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.white.withOpacity(0.1),
+                          //     borderRadius: BorderRadius.circular(8),
+                          //   ),
+                          //   child: Padding(
+                          //     padding: EdgeInsets.symmetric(horizontal: 12),
+                          //     child: DropdownButtonFormField<String>(
+                          //       value: authProvider.selectedRole,
+                          //       dropdownColor: Color(0xFF0D47A1),
+                          //       style: TextStyle(color: Colors.white),
+                          //       decoration: InputDecoration(
+                          //         border: InputBorder.none,
+                          //         labelText: "Select Role",
+                          //         labelStyle: TextStyle(
+                          //           color: Colors.white70,
+                          //         ),
+                          //         icon: Icon(
+                          //           Icons.people_outline,
+                          //           color: Colors.white70,
+                          //         ),
+                          //       ),
+                          //       items:
+                          //           roles.map((String role) {
+                          //             return DropdownMenuItem<String>(
+                          //               value: role,
+                          //               child: Text(
+                          //                 role.toUpperCase(),
+                          //                 style: TextStyle(
+                          //                   color: Colors.white,
+                          //                 ),
+                          //               ),
+                          //             );
+                          //           }).toList(),
+                          //       onChanged: (newValue) {
+                          //         authProvider.setSelectedRole(newValue!);
+                          //       },
+                          //     ),
+                          //   ),
+                          // ),
                           SizedBox(height: 20),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(

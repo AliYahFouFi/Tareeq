@@ -26,7 +26,7 @@ class FloatingInfoCard extends StatelessWidget {
       left: 16,
       right: 65,
       child: Card(
-        elevation: 4,
+        elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         color: Colors.white,
         child: Padding(

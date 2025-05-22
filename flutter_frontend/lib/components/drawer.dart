@@ -177,12 +177,12 @@ class _AppDrawerState extends State<AppDrawer> {
                     busStopsProvider.loadAllBusStops();
                   },
                 ),
-                _buildDrawerItem(
-                  icon: Icons.notifications,
-                  title: 'Notifications',
-                  onTap: () => Navigator.pop(context),
-                  showBadge: true,
-                ),
+                // _buildDrawerItem(
+                //   icon: Icons.notifications,
+                //   title: 'Notifications',
+                //   onTap: () => Navigator.pop(context),
+                //   showBadge: true,
+                // ),
                 _buildDrawerItem(
                   icon: Icons.schedule,
                   title: 'Timetable',
@@ -199,11 +199,11 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                       ),
                 ),
-                _buildDrawerItem(
-                  icon: Icons.settings,
-                  title: 'Settings',
-                  onTap: () => Navigator.pushNamed(context, '/settings'),
-                ),
+                // _buildDrawerItem(
+                //   icon: Icons.settings,
+                //   title: 'Settings',
+                //   onTap: () => Navigator.pushNamed(context, '/settings'),
+                // ),
                 _buildDrawerItem(
                   icon: Icons.info,
                   title: 'About Us',

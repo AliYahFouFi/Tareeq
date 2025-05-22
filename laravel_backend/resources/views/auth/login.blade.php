@@ -1,4 +1,12 @@
-<x-guest-layout>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title') | Tareeq Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head><x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-6" :status="session('status')" />
 

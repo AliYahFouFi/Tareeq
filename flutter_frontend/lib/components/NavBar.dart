@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_frontend/components/RoutesList.dart';
 import 'package:flutter_frontend/models/BusStop_model.dart';
@@ -22,35 +25,35 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
-    return GNav(
-      gap: 8,
+    return CupertinoTabBar(
+      height: 60,
       backgroundColor: Colors.deepPurple,
-      color: Colors.white,
       activeColor: Colors.white,
-      tabBackgroundColor: Colors.deepPurple.shade400,
-      padding: const EdgeInsets.all(16),
-      tabMargin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      tabs: [
-        GButton(
-          icon: Icons.home,
-          text: 'Home',
-          onPressed:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HomePage()),
-              ),
-        ),
-        GButton(
-          icon: Icons.directions_bus,
-          text: 'Routes',
-          onPressed: () => showBusRoutesBottomSheet(context),
-        ),
-        GButton(
-          icon: Icons.room,
-          text: 'Select Stop',
-          onPressed: () => Navigator.pushNamed(context, '/selectStopPage'),
+      inactiveColor: Colors.white.withOpacity(0.6),
+      items: [
+        BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Map'),
+        BottomNavigationBarItem(icon: Icon(Icons.route), label: 'Routes'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.directions),
+          label: 'Plan Trip',
         ),
       ],
+      onTap: (index) {
+        switch (index) {
+          case 0:
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+            break;
+          case 1:
+            showBusRoutesBottomSheet(context);
+            break;
+          case 2:
+            Navigator.pushNamed(context, '/selectStopPage');
+            break;
+        }
+      },
     );
   }
 }

@@ -37,23 +37,33 @@ class ApiService {
 
   // Login
   static Future<User?> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/login"),
-      body: {"email": email, "password": password},
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return User(
-        id: data['id'].toString(),
-        name: data['name'],
-        email: data['email'],
-        role: data['role'],
-        token: data['token'],
-        is2FAEnabled: data['is_2fa_enabled'] == 1,
-        busId: data['busId'],
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/login"),
+        body: {"email": email, "password": password},
       );
-    } else {
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Add null checks for each field
+        return User(
+          id: data['id']?.toString() ?? '',
+          name: data['name']?.toString() ?? '',
+          email: data['email']?.toString() ?? '',
+          role: data['role']?.toString() ?? '',
+          token: data['token']?.toString() ?? '',
+          is2FAEnabled: data['is_2fa_enabled'] == 1,
+          busId:
+              data['busId']?.toString() ??
+              '', // Provide empty string as default
+        );
+      } else {
+        print("Login failed: ${response.statusCode} - ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("Error during login: $e");
       return null;
     }
   }
