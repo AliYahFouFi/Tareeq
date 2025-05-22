@@ -17,17 +17,17 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Transaction ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
-                            </th>
+                            {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
+                            </th> --}}
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Amount</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions</th>
-                        </tr>
+                        </tr> --}}
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($charges as $charge)
@@ -35,9 +35,9 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {{ $charge->id }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                {{-- <td class="px-6 py-4 whitespace-nowrap">
                                     {{ $charge->customer }}
-                                </td>
+                                </td> --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     ${{ number_format($charge->amount / 100, 2) }}
                                 </td>
@@ -51,9 +51,9 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {{ date('Y-m-d H:i', $charge->created) }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                {{-- <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="#" class="text-indigo-600 hover:text-indigo-900">View Details</a>
-                                </td>
+                                </td> --}}
                             </tr>
                         @empty
                             <tr>
