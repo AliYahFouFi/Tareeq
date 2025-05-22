@@ -8,11 +8,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestFirestoreController;
 use App\Http\Controllers\BusController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\PaymentController;
 
 require __DIR__ . '/auth.php';
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 
@@ -67,11 +68,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
     // Other admin routes
 
-    Route::view('/payments', 'admin.payments')->name('payments');
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
 });
-
-
-
-//firestore test
-Route::get('/firestore', [TestFirestoreController::class, 'index']);
-Route::post('/firestore', [TestFirestoreController::class, 'store']);

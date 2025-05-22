@@ -50,4 +50,18 @@ class PaymentController extends Controller
             ], 500);
         }
     }
+
+    public function index()
+    {
+        try {
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+            $charges = $stripe->charges->all(['limit' => 100]);
+
+            return view('admin.payments', [
+                'charges' => $charges->data
+            ]);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error fetching payment data: ' . $e->getMessage());
+        }
+    }
 }

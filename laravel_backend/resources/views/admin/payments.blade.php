@@ -30,11 +30,38 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <tr>
-                            <td class="px-6 py-4" colspan="6">
-                                <p class="text-gray-500 text-center">Payment management functionality coming soon...</p>
-                            </td>
-                        </tr>
+                        @forelse ($charges as $charge)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {{ $charge->id }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {{ $charge->customer }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    ${{ number_format($charge->amount / 100, 2) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {{ $charge->status === 'succeeded' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ ucfirst($charge->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {{ date('Y-m-d H:i', $charge->created) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">View Details</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td class="px-6 py-4" colspan="6">
+                                    <p class="text-gray-500 text-center">No payment records found.</p>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
