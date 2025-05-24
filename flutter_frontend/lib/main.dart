@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/db/database_helper.dart';
 import 'package:flutter_frontend/models/SavedPlace.dart';
 import 'package:flutter_frontend/pages/AboutUs.dart';
 import 'package:flutter_frontend/pages/SelectStopsPage.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_frontend/providers/SavedPlacesProvider.dart';
 import 'package:flutter_frontend/providers/userLocationProvider.dart';
 import 'pages/HomePage.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_frontend/pages/IssuesPage.dart';
 
 Future<void> main() async {
   try {
@@ -53,6 +55,7 @@ class MyApp extends StatelessWidget {
           '/AboutUs': (context) => AboutUsPage(),
           '/selectStopPage': (context) => SelectStopsPage(),
           '/timetable': (context) => VisualTimetablePage(),
+          '/issues': (context) => IssuesPage(),
         },
         debugShowCheckedModeBanner: false,
         title: 'Tareeq',
