@@ -209,6 +209,11 @@ class _AppDrawerState extends State<AppDrawer> {
                   title: 'About Us',
                   onTap: () => Navigator.pushNamed(context, '/AboutUs'),
                 ),
+                _buildDrawerItem(
+                  icon: Icons.report_problem,
+                  title: 'Issues',
+                  onTap: () => Navigator.pushNamed(context, '/issues'),
+                )
               ],
             ),
           ),
