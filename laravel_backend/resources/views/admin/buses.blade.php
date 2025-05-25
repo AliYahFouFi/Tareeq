@@ -20,16 +20,16 @@
     <!-- Table -->
     <div class="overflow-x-auto bg-white rounded shadow">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
+            <thead class="bg-gray-100 text-left">
                 <tr>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Bus ID</th>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Current Location</th>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Driver</th>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Route</th>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Last Updated</th>
-                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                    <th class="px-4 py-3">Bus ID</th>
+                    <th class="px-4 py-3 ">Name</th>
+                    <th class="px-4 py-3 ">Status</th>
+                    <th class="px-4 py-3 ">Current Location</th>
+                    <th class="px-4 py-3 ">Driver</th>
+                    <th class="px-4 py-3 ">Route</th>
+                    <th class="px-4 py-3 ">Last Updated</th>
+                    <th class="px-4 py-3 ">Actions</th>
                 </tr>
             </thead>
 
