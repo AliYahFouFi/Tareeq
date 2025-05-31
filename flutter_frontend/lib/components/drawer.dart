@@ -31,7 +31,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return DrawerHeader(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.deepPurple, Colors.purpleAccent],
+          colors: [Colors.deepPurple, Colors.grey[900]!],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -199,21 +199,22 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                       ),
                 ),
+
                 // _buildDrawerItem(
                 //   icon: Icons.settings,
                 //   title: 'Settings',
                 //   onTap: () => Navigator.pushNamed(context, '/settings'),
                 // ),
                 _buildDrawerItem(
+                  icon: Icons.report_problem,
+                  title: 'Report an Issues',
+                  onTap: () => Navigator.pushNamed(context, '/issues'),
+                ),
+                _buildDrawerItem(
                   icon: Icons.info,
                   title: 'About Us',
                   onTap: () => Navigator.pushNamed(context, '/AboutUs'),
                 ),
-                _buildDrawerItem(
-                  icon: Icons.report_problem,
-                  title: 'Issues',
-                  onTap: () => Navigator.pushNamed(context, '/issues'),
-                )
               ],
             ),
           ),

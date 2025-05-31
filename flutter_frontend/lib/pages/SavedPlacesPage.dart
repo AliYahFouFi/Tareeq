@@ -1,4 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/components/snackbar_helper.dart';
 import 'package:flutter_frontend/models/SavedPlace.dart';
 import 'package:flutter_frontend/pages/HomePage.dart';
 import 'package:flutter_frontend/providers/SavedPlacesProvider.dart';
@@ -241,14 +244,9 @@ class _SavedPlacesPageState extends State<SavedPlacesPage> {
                 onPressed: () {
                   placesProvider.deletePlace(place.id);
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${place.name} deleted'),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
+                  CustomSnackBar.showSuccess(
+                    message: '${place.name} has been deleted successfully.',
+                    context: context,
                   );
                 },
                 child: const Text(
