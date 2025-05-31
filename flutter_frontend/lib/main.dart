@@ -1,11 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_frontend/components/login.dart';
 import 'package:flutter_frontend/db/database_helper.dart';
 import 'package:flutter_frontend/models/SavedPlace.dart';
 import 'package:flutter_frontend/pages/AboutUs.dart';
 import 'package:flutter_frontend/pages/SelectStopsPage.dart';
 import 'package:flutter_frontend/pages/TimetablePage.dart';
 import 'package:flutter_frontend/pages/TwoFactorVerificationScreen.dart';
+import 'package:flutter_frontend/pages/WelcomePage.dart';
+import 'package:flutter_frontend/providers/AppPreferencesProvider.dart';
 import 'package:flutter_frontend/providers/AuthProvider.dart';
 import 'package:flutter_frontend/providers/BusDriverProvider.dart';
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
@@ -26,11 +29,27 @@ Future<void> main() async {
   }
   final savedPlacesProvider = SavedPlacesProvider();
   await savedPlacesProvider.loadPlacesFromLocalStorage();
-  runApp(const MyApp());
+
+  final appPreferencesProvider = AppPreferencesProvider();
+  await appPreferencesProvider.checkFirstLaunch();
+
+  runApp(
+    MyApp(
+      savedPlacesProvider: savedPlacesProvider,
+      appPreferencesProvider: appPreferencesProvider,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final SavedPlacesProvider savedPlacesProvider;
+  final AppPreferencesProvider appPreferencesProvider;
+
+  const MyApp({
+    super.key,
+    required this.savedPlacesProvider,
+    required this.appPreferencesProvider,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +60,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UserLocationProvider()),
         ChangeNotifierProvider(create: (context) => BusDriverProvider()),
         ChangeNotifierProvider(create: (context) => AuthProvider()),
-        ChangeNotifierProvider(create: (context) => SavedPlacesProvider()),
+        ChangeNotifierProvider.value(value: savedPlacesProvider),
+        ChangeNotifierProvider.value(value: appPreferencesProvider),
       ],
-
       child: MaterialApp(
         routes: {
           '/home': (context) => HomePage(),
+          '/welcome': (context) => WelcomePage(),
           '/verify2fa':
               (context) => TwoFactorVerificationScreen(
                 token:
                     Provider.of<AuthProvider>(context, listen: false).userToken,
               ),
+          '/login': (context) => LoginScreen(),
           '/AboutUs': (context) => AboutUsPage(),
           '/selectStopPage': (context) => SelectStopsPage(),
           '/timetable': (context) => VisualTimetablePage(),
@@ -59,7 +80,11 @@ class MyApp extends StatelessWidget {
         },
         debugShowCheckedModeBanner: false,
         title: 'Tareeq',
-        home: HomePage(),
+        home: Consumer<AppPreferencesProvider>(
+          builder: (context, appPrefs, _) {
+            return appPrefs.isFirstLaunch ? WelcomePage() : HomePage();
+          },
+        ),
       ),
     );
   }
