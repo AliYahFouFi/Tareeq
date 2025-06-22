@@ -7,6 +7,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\API\ReportController;
+
+
 
 
 
@@ -37,3 +40,5 @@ Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentI
 Route::post('/tickets/{Userid}', [TicketController::class, 'generateTicket']);
 Route::get('/tickets/{Userid}', [TicketController::class, 'getUserTickets']);
 Route::delete('/tickets/{id}', [TicketController::class, 'deleteTicket']);
+Route::post('/reports', [ReportController::class, 'store']);
+

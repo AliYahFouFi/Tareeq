@@ -10,7 +10,7 @@ import 'package:flutter_frontend/pages/TwoFactorVerificationScreen.dart';
 import 'package:flutter_frontend/pages/WelcomePage.dart';
 import 'package:flutter_frontend/providers/AppPreferencesProvider.dart';
 import 'package:flutter_frontend/providers/AuthProvider.dart';
-import 'package:flutter_frontend/providers/BusDriverProvider.dart';
+import 'package:flutter_frontend/providers/BusDriverProvider.dart';                                                                    
 import 'package:flutter_frontend/providers/BusRouteProvider.dart';
 import 'package:flutter_frontend/providers/BusStopsProvider.dart';
 import 'package:flutter_frontend/providers/SavedPlacesProvider.dart';
@@ -23,7 +23,7 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
-    print("✅ Firebase initialized successfully!");
+    print("✅ Firebase initialized successfully!");                                    
   } catch (e) {
     print("❌ Firebase initialization failed: $e");
   }

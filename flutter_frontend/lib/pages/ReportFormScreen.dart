@@ -4,7 +4,7 @@ import 'package:flutter_frontend/models/ReportModel.dart';
 import 'package:flutter_frontend/pages/IssuesPage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:flutter_frontend/models/BusModel.dart'; // Import your Bus model
+import 'package:flutter_frontend/models/BusModel.dart';
 
 class ReportFormScreen extends StatefulWidget {
   final Bus bus;
@@ -68,7 +68,6 @@ void _submitForm() async {
   if (_formKey.currentState!.validate() && _selectedIssueType != null) {
     _formKey.currentState!.save();
 
-    // Create report object
     Report report = Report(
       id: widget.existingReport?.id,
       busId: widget.bus.id!,
@@ -77,12 +76,14 @@ void _submitForm() async {
       imagePath: _image?.path,
     );
 
-    // Insert into DB
     if (widget.existingReport == null) {
       await BusDatabase.insertReport(report);
     } else {
       await BusDatabase.updateReport(report);
     }
+
+    await BusDatabase.syncReportToLaravel(report);
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

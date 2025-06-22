@@ -9,6 +9,7 @@ use App\Http\Controllers\TestFirestoreController;
 use App\Http\Controllers\BusController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\AdminReportController;
 
 require __DIR__ . '/auth.php';
 
@@ -64,6 +65,8 @@ Route::prefix('admin')->name('admin.')->middleware(['is_admin'])->group(function
     Route::put('/buses/{id}', [BusController::class, 'update'])->name('buses.update');
     Route::delete('/buses/{id}', [BusController::class, 'destroy'])->name('buses.destroy');
 
+
+    Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
 
 
     // Other admin routes
