@@ -16,20 +16,20 @@ class Report {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'busId': busId,
-      'issueType': issueType,
+      'bus_id': busId,
+      'issue_type': issueType,
       'description': description,
-      'imagePath': imagePath,
+      'image_path': imagePath,
     };
-  }
+}
 
   factory Report.fromMap(Map<String, dynamic> map) {
     return Report(
       id: map['id'],
-      busId: map['busId'],
-      issueType: map['issueType'],
+      busId: map['bus_id'],
+      issueType: map['issue_type'],
       description: map['description'],
-      imagePath: map['imagePath'],
+      imagePath: map['image_path'],
     );
   }
 }

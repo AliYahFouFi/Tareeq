@@ -25,7 +25,7 @@ class _IssuesPageState extends State<IssuesPage> {
     final results = await db.rawQuery('''
       SELECT reports.*, buses.name AS busName
       FROM reports
-      JOIN buses ON reports.busId = buses.id
+      JOIN buses ON reports.bus_id = buses.id
     ''');
     setState(() {
       _reports = results;
@@ -42,19 +42,16 @@ class _IssuesPageState extends State<IssuesPage> {
   }
 
   void _editReport(Map<String, dynamic> report) async {
-    // Convert the map to Bus and Report objects
     final bus = Bus(
-      id: report['busId'],
+      id: report['bus_id'],
       name: report['busName'],
-      // Add other Bus fields if necessary
     );
     final existingReport = Report(
       id: report['id'],
-      busId: report['busId'],
-      issueType: report['issueType'],
+      busId: report['bus_Id'],
+      issueType: report['issue_type'],
       description: report['description'],
-      imagePath: report['imagePath'],
-      // Add other Report fields if necessary
+      imagePath: report['image_path'],
     );
     
     Navigator.push(
@@ -99,17 +96,17 @@ class _IssuesPageState extends State<IssuesPage> {
                         return Card(
                           margin: EdgeInsets.symmetric(vertical: 8),
                           child: ListTile(
-                            title: Text(report['issueType']),
+                            title: Text(report['issue_type']),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Bus: ${report['busName']}'),
                                 Text(report['description']),
-                                if (report['imagePath'] != null)
+                                if (report['image_path'] != null)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Image.file(
-                                      File(report['imagePath']),
+                                      File(report['image_path']),
                                       height: 100,
                                       fit: BoxFit.cover,
                                     ),
