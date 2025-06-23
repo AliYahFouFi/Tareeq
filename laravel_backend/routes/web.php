@@ -66,8 +66,9 @@ Route::prefix('admin')->name('admin.')->middleware(['is_admin'])->group(function
     Route::delete('/buses/{id}', [BusController::class, 'destroy'])->name('buses.destroy');
 
 
-    Route::get('/reports', [AdminReportController::class, 'index'])->name('reports');
-
+    // Report Management
+    Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+    Route::delete('/reports/{id}', [AdminReportController::class, 'destroy'])->name('reports.destroy');
 
     // Other admin routes
 

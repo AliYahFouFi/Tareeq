@@ -71,4 +71,9 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination Links -->
+    <div class="mt-6 px-4">
+        {{ $stops->appends(request()->query())->links() }}
+    </div>
 @endsection

@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody class="text-sm divide-y divide-gray-200">
-                @foreach ($routes as $route)
+                @foreach ($routesPaginated as $route)
                     <tr>
                         <td class="px-4 py-2">{{ $route['id'] }}</td>
                         <td class="px-4 py-2">{{ $route['name'] }}</td>
@@ -53,7 +53,7 @@
                     </tr>
                 @endforeach
 
-                @if (count($routes) === 0)
+                @if (count($routesPaginated) === 0)
                     <tr>
                         <td colspan="6" class="px-4 py-2 text-center text-gray-500">
                             No routes found. Click "Add New Route" to create one.
@@ -62,5 +62,10 @@
                 @endif
             </tbody>
         </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+        {{ $routesPaginated->links() }}
     </div>
 @endsection

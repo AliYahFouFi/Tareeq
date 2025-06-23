@@ -18,7 +18,13 @@ class BusRouteController extends Controller
 
     public function index()
     {
-        $routes = BusRoute::with('stops')->get()->map(function ($route) {
+        $routesQuery = BusRoute::with('stops');
+
+        // Get a paginated result
+        $routesPaginated = $routesQuery->paginate(10);
+
+        // Transform the data
+        $routes = $routesPaginated->map(function ($route) {
             return [
                 'id' => $route->id,
                 'name' => $route->name,
@@ -28,7 +34,10 @@ class BusRouteController extends Controller
             ];
         });
 
-        return view('admin.routes', compact('routes'));
+        // Replace the collection with our transformed data
+        $routesPaginated->setCollection($routes);
+
+        return view('admin.routes', compact('routesPaginated'));
     }
 
     public function create()

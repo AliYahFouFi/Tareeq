@@ -92,8 +92,8 @@
                     </svg>
                     Payments
                 </a>
-                <a href="{{ route('admin.reports') }}"
-                    class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-colors {{ request()->routeIs('admin.reports') ? 'bg-blue-100 text-blue-600' : '' }}">
+                <a href="{{ route('admin.reports.index') }}"
+                    class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-colors {{ request()->routeIs('admin.reports.index') ? 'bg-blue-100 text-blue-600' : '' }}">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 17v-6h6v6h4V9l-7-5-7 5v8z" />
