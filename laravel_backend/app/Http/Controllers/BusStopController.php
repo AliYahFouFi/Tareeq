@@ -37,7 +37,7 @@ class BusStopController extends Controller
     // Admin Panel Methods
     public function index()
     {
-        $stops = BusStop::withCount('routes')->get();
+        $stops = BusStop::withCount('routes')->paginate(20); // Paginate with 10 items per page
         return view('admin.stops', compact('stops'));
     }
 

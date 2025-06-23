@@ -48,103 +48,113 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextButton(
-                  onPressed: _completeOnboarding,
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.onSurface.withOpacity(0.6),
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [Colors.deepPurple, Colors.grey.shade900],
+            stops: const [0.1, 0.9],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Skip button
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextButton(
+                    onPressed: _completeOnboarding,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white.withOpacity(0.8),
+                    ),
+                    child: const Text('Skip'),
                   ),
-                  child: const Text('Skip'),
                 ),
               ),
-            ),
 
-            // Page content
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (int page) {
-                  setState(() {
-                    _currentPage = page;
-                  });
-                },
-                children: [
-                  _buildWelcomePage(),
-                  _buildFeaturesPage(),
-                  _buildGetStartedPage(),
-                ],
+              // Page content
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (int page) {
+                    setState(() {
+                      _currentPage = page;
+                    });
+                  },
+                  children: [
+                    _buildWelcomePage(),
+                    _buildFeaturesPage(),
+                    _buildGetStartedPage(),
+                  ],
+                ),
               ),
-            ),
 
-            // Bottom navigation
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24.0,
-                vertical: 24.0,
-              ),
-              child: Column(
-                children: [
-                  // Page indicators
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      _totalPages,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                        width: _currentPage == index ? 24 : 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color:
-                              _currentPage == index
-                                  ? colorScheme.primary
-                                  : colorScheme.onSurface.withOpacity(0.2),
+              // Bottom navigation
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 24.0,
+                ),
+                child: Column(
+                  children: [
+                    // Page indicators
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        _totalPages,
+                        (index) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                          width: _currentPage == index ? 24 : 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color:
+                                _currentPage == index
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.3),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Next button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _goToNextPage,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    // Next button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _goToNextPage,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.deepPurple,
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
                         ),
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        elevation: 0,
-                        shadowColor: Colors.transparent,
-                      ),
-                      child: Text(
-                        _currentPage == _totalPages - 1
-                            ? 'Get Started'
-                            : 'Next',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        child: Text(
+                          _currentPage == _totalPages - 1
+                              ? 'Get Started'
+                              : 'Next',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -164,7 +174,7 @@ class _WelcomePageState extends State<WelcomePage> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -187,7 +197,7 @@ class _WelcomePageState extends State<WelcomePage> {
             'Welcome to Tareeq',
             style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
+              color: Colors.white,
               height: 1.2,
             ),
             textAlign: TextAlign.center,
@@ -198,7 +208,7 @@ class _WelcomePageState extends State<WelcomePage> {
           Text(
             'Your ultimate transportation companion for navigating bus routes with ease',
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              color: Colors.white.withOpacity(0.8),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -220,13 +230,13 @@ class _WelcomePageState extends State<WelcomePage> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.1),
+              color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.map_outlined,
               size: 60,
-              color: theme.colorScheme.primary,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 40),
@@ -236,7 +246,7 @@ class _WelcomePageState extends State<WelcomePage> {
             'Find Your Route',
             style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 24),
@@ -258,7 +268,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Widget _buildGetStartedPage() {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -271,16 +280,16 @@ class _WelcomePageState extends State<WelcomePage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  colorScheme.primary.withOpacity(0.1),
-                  colorScheme.primary.withOpacity(0.05),
+                  Colors.white.withOpacity(0.2),
+                  Colors.white.withOpacity(0.1),
                 ],
               ),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.check_circle_outline,
               size: 80,
-              color: colorScheme.primary,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 40),
@@ -290,7 +299,7 @@ class _WelcomePageState extends State<WelcomePage> {
             'Ready to Go!',
             style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 16),
@@ -299,7 +308,7 @@ class _WelcomePageState extends State<WelcomePage> {
           Text(
             'Start exploring bus routes and plan your journey with confidence',
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurface.withOpacity(0.7),
+              color: Colors.white.withOpacity(0.8),
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -316,8 +325,8 @@ class _WelcomePageState extends State<WelcomePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.deepPurple,
               ),
               child: Text(
                 'Login',
@@ -339,12 +348,12 @@ class _WelcomePageState extends State<WelcomePage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                side: BorderSide(color: colorScheme.primary),
+                side: const BorderSide(color: Colors.white),
               ),
               child: Text(
                 'Continue as Guest',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.primary,
+                  color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -356,8 +365,6 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Widget _buildFeatureItem(IconData icon, String text) {
-    final theme = Theme.of(context);
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -366,17 +373,17 @@ class _WelcomePageState extends State<WelcomePage> {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.1),
+              color: Colors.white.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+            child: Icon(icon, size: 20, color: Colors.white),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
               text,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.8),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.white.withOpacity(0.8),
               ),
             ),
           ),

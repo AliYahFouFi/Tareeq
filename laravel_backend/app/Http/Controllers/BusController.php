@@ -30,7 +30,7 @@ class BusController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'registered_number' => 'required|string|unique:firebase.busses',
+            'registered_number' => 'required|string',
             'routeName' => 'required|string',
             'active' => 'required|in:0,1',
         ]);
