@@ -40,7 +40,7 @@ class DriverController extends Controller
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
             'role' => 'driver',
-            'busId' => $validated['busId'],
+            'busId' => null,
         ]);
 
         return redirect()->route('admin.drivers.index')->with('success', 'Driver created successfully!');

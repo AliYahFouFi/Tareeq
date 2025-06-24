@@ -37,15 +37,15 @@ class _IssuesPageState extends State<IssuesPage> {
     await db.delete('reports', where: 'id = ?', whereArgs: [id]);
     _loadReports();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Report deleted'), backgroundColor: Colors.redAccent),
+      SnackBar(
+        content: Text('Report deleted'),
+        backgroundColor: Colors.redAccent,
+      ),
     );
   }
 
   void _editReport(Map<String, dynamic> report) async {
-    final bus = Bus(
-      id: report['bus_id'],
-      name: report['busName'],
-    );
+    final bus = Bus(id: report['bus_id'], name: report['busName']);
     final existingReport = Report(
       id: report['id'],
       busId: report['bus_Id'],
@@ -53,14 +53,13 @@ class _IssuesPageState extends State<IssuesPage> {
       description: report['description'],
       imagePath: report['image_path'],
     );
-    
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ReportFormScreen(
-          bus: bus,
-          existingReport: existingReport,
-        ),
+        builder:
+            (context) =>
+                ReportFormScreen(bus: bus, existingReport: existingReport),
       ),
     ).then((_) => _loadReports());
   }
@@ -78,60 +77,72 @@ class _IssuesPageState extends State<IssuesPage> {
         child: Column(
           children: [
             Expanded(
-              child: _reports.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.report_problem, size: 100, color: Colors.redAccent),
-                          SizedBox(height: 20),
-                          Text('No issues reported yet.', style: TextStyle(fontSize: 18)),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _reports.length,
-                      itemBuilder: (context, index) {
-                        final report = _reports[index];
-                        return Card(
-                          margin: EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Text(report['issue_type']),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Bus: ${report['busName']}'),
-                                Text(report['description']),
-                                if (report['image_path'] != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Image.file(
-                                      File(report['image_path']),
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    TextButton.icon(
-                                      icon: Icon(Icons.edit, color: Colors.blue),
-                                      label: Text('Edit'),
-                                      onPressed: () => _editReport(report),
-                                    ),
-                                    TextButton.icon(
-                                      icon: Icon(Icons.delete, color: Colors.red),
-                                      label: Text('Delete'),
-                                      onPressed: () => _deleteReport(report['id']),
-                                    ),
-                                  ],
-                                ),
-                              ],
+              child:
+                  _reports.isEmpty
+                      ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.report_problem,
+                              size: 100,
+                              color: Colors.redAccent,
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                            SizedBox(height: 20),
+                            Text(
+                              'No issues reported yet.',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      )
+                      : ListView.builder(
+                        itemCount: _reports.length,
+                        itemBuilder: (context, index) {
+                          final report = _reports[index];
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              title: Text(report['issue_type']),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Bus: ${report['busName']}'),
+                                  Text(report['description']),
+                                  if (report['image_path'] != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Image.file(
+                                        File(report['image_path']),
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      // TextButton.icon(
+                                      //   icon: Icon(Icons.edit, color: Colors.blue),
+                                      //   label: Text('Edit'),
+                                      //   onPressed: () => _editReport(report),
+                                      // ),
+                                      TextButton.icon(
+                                        icon: Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
+                                        label: Text('Remove'),
+                                        onPressed:
+                                            () => _deleteReport(report['id']),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
             ),
             SizedBox(height: 10),
             ElevatedButton(

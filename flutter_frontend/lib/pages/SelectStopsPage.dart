@@ -220,6 +220,7 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: DropdownButtonFormField<BusRoute>(
+        isExpanded: true, // Ensures the dropdown button takes full width
         value: selectedRoute,
         decoration: InputDecoration(
           labelText: 'Bus Route',
@@ -235,9 +236,15 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
             routes.map((route) {
               return DropdownMenuItem<BusRoute>(
                 value: route,
-                child: Text(
-                  route.route_name,
-                  style: const TextStyle(fontSize: 16),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.7,
+                  ),
+                  child: Text(
+                    route.route_name,
+                    style: const TextStyle(fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               );
             }).toList(),
@@ -261,6 +268,7 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: DropdownButtonFormField<BusStop>(
+        isExpanded: true, // This ensures the dropdown button takes full width
         value: value,
         decoration: InputDecoration(
           labelText: label,
@@ -278,10 +286,15 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
                 : routeStops.map((stop) {
                   return DropdownMenuItem<BusStop>(
                     value: stop,
-                    child: Text(
-                      stop.name,
-                      style: const TextStyle(fontSize: 16),
-                      overflow: TextOverflow.ellipsis,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.7,
+                      ),
+                      child: Text(
+                        stop.name,
+                        style: const TextStyle(fontSize: 16),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   );
                 }).toList(),
