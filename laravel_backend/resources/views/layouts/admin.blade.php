@@ -106,8 +106,8 @@
             <div class="border-t border-gray-200 p-4">
                 <div class="flex items-center">
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-700">Admin User</p>
-                        <p class="text-xs text-gray-500">admin@tareeq.com</p>
+                        <p class="text-sm font-medium text-gray-700">Admin </p>
+                        <p class="text-xs text-gray-500">admin@admin.com</p>
                     </div>
                 </div>
             </div>

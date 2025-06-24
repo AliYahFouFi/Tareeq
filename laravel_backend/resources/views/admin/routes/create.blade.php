@@ -21,7 +21,8 @@
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Select Stops (in order)</label>
                 <div class="space-y-2" id="stopsContainer">
-                    <div class="flex items-center space-x-2">
+                    <!-- First stop added manually to ensure one always exists -->
+                    <div class="flex items-center space-x-2 mt-2">
                         <select name="stops[]" class="shadow border rounded py-2 px-3 text-gray-700 w-full" required>
                             <option value="">Select a stop</option>
                             @foreach ($stops as $stop)
@@ -52,26 +53,26 @@
         </form>
     </div>
 
+    <!-- Template for dynamically adding stop fields -->
+    <template id="stop-template">
+        <div class="flex items-center space-x-2 mt-2">
+            <select name="stops[]" class="shadow border rounded py-2 px-3 text-gray-700 w-full" required>
+                <option value="">Select a stop</option>
+                @foreach ($stops as $stop)
+                    <option value="{{ $stop->id }}">{{ $stop->name }}</option>
+                @endforeach
+            </select>
+            <button type="button" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 delete-stop"
+                onclick="this.parentElement.remove()">×</button>
+        </div>
+    </template>
+
     <script>
         function addStop() {
             const container = document.getElementById('stopsContainer');
-            const template = `
-                <div class="flex items-center space-x-2">
-                    <select name="stops[]" class="shadow border rounded py-2 px-3 text-gray-700 w-full" required>
-                        <option value="">Select a stop</option>
-                        @foreach ($stops as $stop)
-                            <option value="{{ $stop->id }}">{{ $stop->name }}</option>
-                        @endforeach
-                    </select>
-                    <button type="button" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 delete-stop" onclick="this.parentElement.remove()">×</button>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', template);
+            const template = document.getElementById('stop-template');
+            const clone = template.content.cloneNode(true);
+            container.appendChild(clone);
         }
-
-        // Add a second stop by default
-        document.addEventListener('DOMContentLoaded', function() {
-            addStop();
-        });
     </script>
 @endsection

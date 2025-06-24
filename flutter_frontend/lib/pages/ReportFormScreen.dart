@@ -31,7 +31,6 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   ];
 
   @override
-
   void initState() {
     super.initState();
     if (widget.existingReport != null) {
@@ -45,16 +44,18 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
 
   Future<void> _pickImage() async {
     try {
-      final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+      final pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+      );
       if (pickedFile != null) {
         setState(() {
           _image = File(pickedFile.path);
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to open camera: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to open camera: $e')));
     }
   }
 
@@ -64,58 +65,62 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     });
   }
 
-void _submitForm() async {
-  if (_formKey.currentState!.validate() && _selectedIssueType != null) {
-    _formKey.currentState!.save();
+  void _submitForm() async {
+    if (_formKey.currentState!.validate() && _selectedIssueType != null) {
+      _formKey.currentState!.save();
 
-    Report report = Report(
-      id: widget.existingReport?.id,
-      busId: widget.bus.id!,
-      issueType: _selectedIssueType!,
-      description: _description,
-      imagePath: _image?.path,
-    );
+      Report report = Report(
+        id: widget.existingReport?.id,
+        busId: widget.bus.id!,
+        issueType: _selectedIssueType!,
+        description: _description,
+        imagePath: _image?.path,
+      );
 
-    if (widget.existingReport == null) {
-      await BusDatabase.insertReport(report);
-    } else {
-      await BusDatabase.updateReport(report);
-    }
+      if (widget.existingReport == null) {
+        await BusDatabase.insertReport(report);
+      } else {
+        await BusDatabase.updateReport(report);
+      }
 
-    await BusDatabase.syncReportToLaravel(report);
-
+      await BusDatabase.syncReportToLaravel(report);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.existingReport == null
-              ? 'Report submitted for ${widget.bus.name}!'
-              : 'Report updated for ${widget.bus.name}!'),
+          backgroundColor: Colors.redAccent,
+          content: Text(
+            widget.existingReport == null
+                ? 'Report submitted for ${widget.bus.name}!'
+                : 'Report updated for ${widget.bus.name}!',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       );
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => IssuesPage()),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Please complete the form')),
-    );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => IssuesPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please complete the form')));
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: ThemeData(
         primarySwatch: Colors.red,
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.red).copyWith(
-          secondary: Colors.redAccent,
-        ),
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.red,
+        ).copyWith(secondary: Colors.redAccent),
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.existingReport == null ? 'New Report' : 'Edit Report'),
+          title: Text(
+            widget.existingReport == null ? 'New Report' : 'Edit Report',
+          ),
           backgroundColor: Colors.redAccent,
           foregroundColor: Colors.white,
         ),
@@ -142,19 +147,23 @@ void _submitForm() async {
                           ),
                         ),
                         value: _selectedIssueType,
-                        items: _issueTypes.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(type),
-                          );
-                        }).toList(),
+                        items:
+                            _issueTypes.map((type) {
+                              return DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              );
+                            }).toList(),
                         onChanged: (value) {
                           setState(() {
                             _selectedIssueType = value;
                           });
                         },
-                        validator: (value) =>
-                            value == null ? 'Please select an issue type' : null,
+                        validator:
+                            (value) =>
+                                value == null
+                                    ? 'Please select an issue type'
+                                    : null,
                       ),
                       SizedBox(height: 16),
                       TextFormField(
@@ -171,8 +180,11 @@ void _submitForm() async {
                             borderSide: BorderSide(color: Colors.redAccent),
                           ),
                         ),
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'Enter a description' : null,
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? 'Enter a description'
+                                    : null,
                         onSaved: (value) {
                           _description = value!;
                         },
@@ -186,13 +198,19 @@ void _submitForm() async {
                         TextButton.icon(
                           onPressed: _removeImage,
                           icon: Icon(Icons.delete, color: Colors.red),
-                          label: Text('Remove Photo', style: TextStyle(color: Colors.red)),
+                          label: Text(
+                            'Remove Photo',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ),
                       ] else
                         Text('No image selected', textAlign: TextAlign.center),
                       TextButton.icon(
                         icon: Icon(Icons.camera_alt, color: Colors.redAccent),
-                        label: Text('Take Photo', style: TextStyle(color: Colors.redAccent)),
+                        label: Text(
+                          'Take Photo',
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
                         onPressed: _pickImage,
                       ),
                     ],
