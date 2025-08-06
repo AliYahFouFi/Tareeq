@@ -100,6 +100,10 @@ class _SelectStopsPageState extends State<SelectStopsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          onPressed: () => Navigator.pushNamed(context, '/home'),
+        ),
         title: const Text(
           'Plan Your Journey',
           style: TextStyle(
