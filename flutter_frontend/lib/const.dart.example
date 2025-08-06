@@ -1,0 +1,3 @@
+// filepath: lib/const.dart.example
+// Replace with your Google Maps API key
+const Api_Key = "YOUR_API_KEY_HERE";
